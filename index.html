@@ -3,21 +3,41 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>MCR音楽部</title>
+        <title>MCR音楽部-大阪公立大マイコン研究会-</title>
         <link rel="stylesheet" href="style.css" />
-        <script src="setMusics.js"></script>
         <script src="playMusic.js"></script>
+
+        <!-- Font Awesome CDN（アイコンを使用） -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@150&display=swap" rel="stylesheet" />
     </head>
     <body>
         <header class="header">
-            <a href="">
+            <a href="" id="title">
                 <h1>MCR音楽部</h1>
             </a>
 
+            <form action="" method="GET" class="search">
+                <input type="text" id="search" class="search-box" name="search" placeholder="キーワードを入力" />
+                <input type="submit" value="けんさくっ☆" />
+            </form>
+
             <div class="nav">
-                <a href="about/index.html">About</a>
-                <a href="https://ocumcr.github.io/mcr-homepage/#top" target="_blank">Home Page</a>
-                <a href="https://x.com/ocu_mcr" target="_blank">X</a>
+                <a href="about/index.html">
+                    <i class="fa-solid fa-address-card"></i>
+                    About
+                </a>
+                <a href="https://ocumcr.github.io/mcr-homepage/#top" target="_blank">
+                    <i class="fa-solid fa-home"></i>
+                    HomePage
+                </a>
+                <a href="https://x.com/ocu_mcr" target="_blank">
+                    <i class="fa-brands fa-twitter"></i>
+                    X
+                </a>
             </div>
         </header>
 
@@ -26,12 +46,27 @@
         </div>
 
         <footer class="footer">
+            <div class="music-thumbnail">
+                <span id="mini-thumbnail"></span>
+                <div id="music-title"></div>
+            </div>
+
             <div class="player-controls">
                 <div class="seek">
-                    <button id="playBtn">▶</button>
-                    <button id="pauseBtn">││</button>
+                    <button id="back-button">
+                        <i class="fa-solid fa-backward-step"></i>
+                    </button>
+                    <button id="play-button">
+                        <i class="fa-solid fa-play"></i>
+                    </button>
+                    <button id="forward-button">
+                        <i class="fa-solid fa-forward-step"></i>
+                    </button>
                     <input id="seekBar" type="range" value="0" min="0" max="100" step="1" />
                     <span id="currentTime">00:00</span>/<span id="duration">00:00</span>
+                    <button id="loop-button">
+                        <i class="fa-solid fa-repeat loop-none"></i>
+                    </button>
                 </div>
 
                 <div class="volume-control">

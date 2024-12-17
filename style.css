@@ -1,11 +1,11 @@
 @font-face {
-    font-family: "anzu";
-    src: url("/APJapanesefontT.ttf") format("true");
+    font-family: Anzu;
+    src: url("APJapanesefontT.ttf") format("truetype");
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #cccccc;
+    font-family: "Noto Sans JP", Arial, sans-serif;
+    background-color: #f2f2f2;
     margin: 0;
     padding: 0;
     width: 100%;
@@ -14,19 +14,24 @@ body {
     display: flex;
     justify-content: center;
 
-    font-size: 48px;
+    font-size: 24px;
     color: #111;
+
+    white-space: nowrap;
 }
 
 h1 {
-    width: 30%;
+    width: 300px;
     margin: 20px;
-    font-size: 60px;
+    font-size: 48px;
 
     display: inline;
+
+    font-family: sans-serif;
 }
 
-p {
+p,
+h3 {
     margin: 0;
 }
 
@@ -38,7 +43,7 @@ p {
     align-items: center;
 
     width: 100%;
-    height: 120px;
+    height: 60px;
     left: 0;
     top: 0;
 
@@ -46,32 +51,90 @@ p {
 
     background-color: #111;
     color: azure;
+    font-size: 24px;
 
     user-select: none;
+
+    z-index: 1000;
+}
+
+.header a {
+    color: azure;
+    text-decoration: none;
+}
+
+.header a:hover {
+    color: #808888;
 }
 
 .nav {
     display: inline;
 
     margin: 20px;
-    gap: 30px;
+}
+
+.nav a {
+    margin: 10px;
 }
 
 .content {
-    width: 70%;
-    height: 100%;
-    padding-top: 30px;
-    margin-top: 120px;
+    width: 800px;
+    height: max-content;
+    margin-top: 60px;
+    padding-bottom: 80px;
 
-    font-size: 32px;
+    font-size: 24px;
 
-    background-color: #f4f4f4;
+    background-color: #f2f2f2;
+
+    /* box-shadow: 0px 0px 10px 0px grey; */
+}
+
+.tags button {
+    width: fit-content;
+    background-color: #f2f2f2;
+    color: #111;
+    box-shadow: none;
+
+    transition: none;
+
+    border: #808080 solid 1px;
+}
+
+.tags button:hover {
+    transform: none;
+    background-color: #ccc;
+}
+
+.author {
+    cursor: pointer;
+}
+
+.author:hover {
+    color: #808080;
+}
+
+.search {
+    width: 40%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.search input[type="submit"] {
+    height: 40px;
+}
+
+.search-box {
+    width: 80%;
+    height: 35px;
 }
 
 ol {
     width: 100%;
 
-    display: flex;
+    display: block;
     justify-content: center;
 
     margin: 0;
@@ -98,9 +161,6 @@ ol {
     transition: all 0.5s;
 
     cursor: pointer;
-
-    background-image: url("alternative-image.png");
-    background-size: cover;
 }
 
 .img-box:hover {
@@ -110,29 +170,52 @@ ol {
 .description {
     padding-left: 20px;
     height: 170px;
-    display: inline-block;
-
-    font-family: "anzu", sans-serif;
+    display: block;
+    font-family: "Noto Sans JP", Arial, sans-serif;
 }
 
 .footer {
     position: fixed;
-    justify-content: center;
 
     width: 100%;
-    height: 80px;
+    height: 50px;
     left: 0;
     bottom: 0;
 
-    display: flex;
-    align-items: center;
+    display: inline-flex;
+    /* align-items: center; */
+    justify-content: right;
 
-    padding: 0; /* 左右に300pxの余白 */
+    padding: 0;
 
     background-color: #111;
     color: azure;
 
     user-select: none;
+}
+
+.music-thumbnail {
+    width: 30%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: left;
+}
+
+#mini-thumbnail {
+    padding: 10px;
+
+    height: 40%;
+    aspect-ratio: 1;
+    border: #f2f2f2 1px solid;
+}
+
+#music-title {
+    padding-left: 20px;
+    font-size: 16px;
+
+    overflow: hidden;
 }
 
 .player-controls {
@@ -146,11 +229,15 @@ ol {
 .seek {
     display: inline-flex;
     align-items: center;
+    justify-content: right;
+
     gap: 10px;
+
+    padding: 20px;
 }
 
 label {
-    font-size: 24px;
+    font-size: 16px;
 }
 
 input[type="range"] {
@@ -181,34 +268,46 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .volume-control {
+    width: 20%;
+
     display: flex;
     align-items: center;
-    gap: 5px;
     color: #fff;
+
+    padding-right: 20px;
+}
+
+#volume {
+    width: 80%;
 }
 
 button {
     display: inline-block;
-    padding: 10px 20px;
+
+    align-items: center;
+
+    padding: 8px 20px;
+    width: 70px;
+    height: 40px;
+
     font-size: 16px;
     font-weight: bold;
     color: #fff;
     background: #111;
-    border: none;
+
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.6);
+    /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.6); */
+
     cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    text-transform: uppercase;
+    /* transition: all 0.3s ease-in-out; */
+
+    border: none;
+
+    font-family: "Noto Sans JP", Arial, sans-serif;
 }
 
 button:hover {
-    transform: translateY(-3px);
-}
-
-button:active {
-    transform: translateY(1px);
-    transition: all 0s;
+    background: #444;
 }
 
 button:disabled {
@@ -216,4 +315,23 @@ button:disabled {
     color: #666;
     cursor: not-allowed;
     box-shadow: none;
+}
+
+.loop-none {
+    opacity: 0.5;
+}
+
+.loop-one {
+    position: relative;
+}
+
+.loop-one::after {
+    content: "";
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 8px;
+    height: 8px;
+    background-color: #007bff;
+    border-radius: 50%;
 }

@@ -1,9 +1,47 @@
 [
     {
-        "title": "試作29",
+        "title": "The unreachable within sight.",
         "year": "2024",
         "author": "うめぼし",
-        "description": "<a href=''>Vector Space</a>の通常BGM",
-        "path": "スズメが鳴く朝.mp3"
+        "description": "<a href='https://ipotazero.github.io/vector-space/' target='_blank'>Vector Space</a>の後半BGM",
+        "path": "musics/試作31.m4a",
+        "thumbnail": "thumbnails/82.png",
+        "tags": ["Vector Space", "jazz"]
+    },
+    {
+        "title": "Determinant.",
+        "year": "2024",
+        "author": "うめぼし",
+        "description": "<a href='https://ipotazero.github.io/vector-space/' target='_blank'>Vector Space</a>の通常BGM",
+        "path": "musics/試作30.m4a",
+        "thumbnail": "thumbnails/82.png",
+        "tags": ["Vector Space"]
+    },
+    {
+        "title": "Projection.wav",
+        "year": "2024",
+        "author": "",
+        "description": "",
+        "path": "musics/Projection.wav",
+        "thumbnail": "thumbnails/",
+        "tags": []
+    },
+    {
+        "title": "Ascension!.wav",
+        "year": "2024",
+        "author": "",
+        "description": "",
+        "path": "musics/Ascension!.wav",
+        "thumbnail": "thumbnails/",
+        "tags": ["rock"]
+    },
+    {
+        "title": "Amanojaku!.wav",
+        "year": "2024",
+        "author": "",
+        "description": "",
+        "path": "musics/Amanojaku!.wav",
+        "thumbnail": "thumbnails/",
+        "tags": ["rock"]
     }
 ]
