@@ -21,6 +21,12 @@ const setButtons = (data) => {
         b.addEventListener("click", () => {
             if (audio) audio.pause()
 
+            if (context == null) {
+                context = new AudioContext()
+                gain = context.createGain()
+                gain.connect(context.destination)
+            }
+
             audio = new Audio(data[i].path)
 
             audio.loop = loopMode == 2
@@ -38,6 +44,8 @@ const setButtons = (data) => {
     })
 
     const setAudio = (i) => {
+        sendPlayCount(data[i].title)
+
         gain.gain.value = volumeControl.value / 100
 
         audio.onended = () => {
@@ -102,6 +110,22 @@ const setButtons = (data) => {
         audio.addEventListener("timeupdate", () => {
             seekBar.value = audio.currentTime
             currentTimeEl.textContent = formatTime(audio.currentTime)
+
+            if (loopMode == 2 && !repeatCounted && audio.duration - audio.currentTime < 0.65) {
+                console.log("repeat-counted")
+
+                sendPlayCount(data[i].title)
+
+                repeatCounted = true
+
+                setTimeout(() => {
+                    repeatCounted = false
+                }, 1000)
+            }
+
+            console.log()
+
+            // if(loopMode==2 && seekBar.value)
         })
 
         // 音楽ファイルの読み込み完了時に初期設定
@@ -141,14 +165,18 @@ const setButtons = (data) => {
         loopMode++
         loopMode %= 3
 
-        audio.loop = loopMode == 2
-
-        loopButton.innerHTML = `
+         loopButton.innerHTML = `
             <i class="fa-solid fa-repeat ${["loop-none", "", "loop-one"][loopMode]}"></i>
         `
 
         localStorage.setItem("loopMode", loopMode)
-    })
+    
+
+        if (!audio) return
+
+        audio.loop = loopMode == 2
+
+       })
 
     window.addEventListener("keydown", (e) => {
         if (e.code == "Space") {
@@ -204,16 +232,20 @@ const setMusics = (data) => {
                     background: url(${obj.thumbnail});
                     background-size: cover;
                 "></div>
+
                 <div class="description">
                     <h3>${obj.title}</h3>
-                    <p>${obj.year}年</p>
+                    <p>
+                        ${obj.year}年
+                    </p>
                     <p onclick="onClickTag('${obj.author}')" class="author">${obj.author}</p>
                     <p>${obj.description}</p>
                     <div class="tags">
                         ${tags}
                     </div>
                 </div>
-               
+
+                <div class="play-count">取得中...</div>
             </li>
         `
     })
@@ -226,10 +258,29 @@ const onClickTag = (tag) => {
     location.href = url.href
 }
 
+const setPlayCount = (data, record) => {
+    const list = document.querySelectorAll(".play-count")
+
+    data.forEach((obj, i) => {
+        list[i].innerText = "再生回数: " + (record[obj.title] ?? 0)
+    })
+}
+
+let repeatCounted = false
+
+const fd = fetchData()
+
+let loopMode = 0
+
+let audio = null
+let source = null
+let context = null
+let gain = null
+
 window.addEventListener("DOMContentLoaded", async () => {
     // json取得
     const json = await fetch("music-data.json")
-    const data = await json.json()
+    let data = await json.json()
 
     // urlの検索を取得
     const url = new URL(location.href)
@@ -249,14 +300,10 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     document.getElementById("title").addEventListener("click", (e) => {
         e.preventDefault()
-        window.location.href = window.location.origin + window.location.pathname + "?search="
+        window.location.href = window.location.origin + window.location.pathname
     })
+
+    const record = await fd
+
+    setPlayCount(data, record)
 })
-
-let loopMode = 0
-
-let audio = null
-let source = null
-const context = new AudioContext()
-const gain = context.createGain()
-gain.connect(context.destination)

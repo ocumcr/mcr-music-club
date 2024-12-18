@@ -77,6 +77,31 @@ h3 {
     margin: 10px;
 }
 
+.search {
+    margin-right: 20px;
+
+    width: 40%;
+    height: 80%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.search input[type="submit"] {
+    height: 100%;
+}
+
+.search-box {
+    width: 80%;
+    height: 90%;
+
+    padding: 0;
+    margin: 0;
+}
+
+/* 中身ここから */
+
 .content {
     width: 800px;
     height: max-content;
@@ -86,19 +111,25 @@ h3 {
     font-size: 24px;
 
     background-color: #f2f2f2;
-
-    /* box-shadow: 0px 0px 10px 0px grey; */
 }
 
-.tags button {
+.tags {
+    margin-top: 5px;
+}
+
+.tag-button {
+    padding: 10px 20px;
+
     width: fit-content;
+
     background-color: #f2f2f2;
     color: #111;
+
     box-shadow: none;
 
-    transition: none;
-
     border: #808080 solid 1px;
+
+    border-radius: 8px;
 }
 
 .tags button:hover {
@@ -111,24 +142,7 @@ h3 {
 }
 
 .author:hover {
-    color: #808080;
-}
-
-.search {
-    width: 40%;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.search input[type="submit"] {
-    height: 40px;
-}
-
-.search-box {
-    width: 80%;
-    height: 35px;
+    color: #c0c0c0;
 }
 
 ol {
@@ -151,9 +165,17 @@ ol {
     border-bottom: #111 1px solid;
 }
 
+.play-count {
+    max-width: 140px;
+
+    text-align: right;
+
+    overflow: hidden;
+}
+
 .img-box {
     width: 170px;
-    height: 170px;
+    aspect-ratio: 1;
     border: #111 solid 1px;
 
     display: inline-block;
@@ -168,11 +190,14 @@ ol {
 }
 
 .description {
+    flex: 1; /* 残りのスペースを占める */
+
     padding-left: 20px;
-    height: 170px;
     display: block;
     font-family: "Noto Sans JP", Arial, sans-serif;
 }
+
+/* footerここから */
 
 .footer {
     position: fixed;
@@ -195,7 +220,7 @@ ol {
 }
 
 .music-thumbnail {
-    width: 30%;
+    width: 400px;
     height: 100%;
 
     display: flex;
@@ -212,13 +237,15 @@ ol {
 }
 
 #music-title {
-    padding-left: 20px;
+    padding-left: 10px;
     font-size: 16px;
-
     overflow: hidden;
 }
 
 .player-controls {
+    width: 100%;
+    max-width: 100%;
+
     display: inline-flex;
     align-items: center;
     gap: 10px;
@@ -227,17 +254,19 @@ ol {
 }
 
 .seek {
+    width: 100%;
+    min-width: 200px;
+
     display: inline-flex;
     align-items: center;
     justify-content: right;
 
     gap: 10px;
-
-    padding: 20px;
 }
 
-label {
-    font-size: 16px;
+#seekBar {
+    width: 100%;
+    max-width: 100%;
 }
 
 input[type="range"] {
@@ -268,20 +297,24 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .volume-control {
-    width: 20%;
-
     display: flex;
+    justify-content: right;
     align-items: center;
     color: #fff;
-
     padding-right: 20px;
 }
 
 #volume {
-    width: 80%;
+    width: 100%;
+    min-width: 80px;
 }
 
-button {
+.volume-label {
+    font-size: 16px;
+    margin: 10px;
+}
+
+.player-controls button {
     display: inline-block;
 
     align-items: center;
@@ -306,11 +339,11 @@ button {
     font-family: "Noto Sans JP", Arial, sans-serif;
 }
 
-button:hover {
+.player-controls button:hover {
     background: #444;
 }
 
-button:disabled {
+.player-controls button:disabled {
     background: #ccc;
     color: #666;
     cursor: not-allowed;
@@ -334,4 +367,61 @@ button:disabled {
     height: 8px;
     background-color: #007bff;
     border-radius: 50%;
+}
+
+/* 画面幅 */
+
+@media (max-width: 1200px) {
+    .music-thumbnail {
+        display: none;
+    }
+
+    .nav {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .img-box {
+        width: 100px;
+    }
+
+    .tag-button {
+        padding: 5px 10px;
+    }
+
+    p,
+    h3 {
+        font-size: 16px;
+    }
+
+    .footer {
+        justify-content: left;
+    }
+
+    .play-count {
+        display: none;
+    }
+
+    .volume-label {
+        display: none;
+    }
+
+    .time-count {
+        display: none;
+    }
+}
+
+@media (max-width: 450px) {
+    h1 {
+        font-size: 24px;
+    }
+
+    .header {
+        height: 40px;
+    }
+
+    .volume-control {
+        display: none;
+    }
 }

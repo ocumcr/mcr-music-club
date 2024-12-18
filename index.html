@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>MCR音楽部-大阪公立大マイコン研究会-</title>
         <link rel="stylesheet" href="style.css" />
+        <script src="survey.js"></script>
         <script src="playMusic.js"></script>
 
         <!-- Font Awesome CDN（アイコンを使用） -->
@@ -26,7 +27,7 @@
             </form>
 
             <div class="nav">
-                <a href="about/index.html">
+                <a href="about" target="_blank">
                     <i class="fa-solid fa-address-card"></i>
                     About
                 </a>
@@ -63,16 +64,18 @@
                         <i class="fa-solid fa-forward-step"></i>
                     </button>
                     <input id="seekBar" type="range" value="0" min="0" max="100" step="1" />
-                    <span id="currentTime">00:00</span>/<span id="duration">00:00</span>
+
+                    <div class="time-count"><span id="currentTime">00:00</span>/<span id="duration">00:00</span></div>
+
                     <button id="loop-button">
                         <i class="fa-solid fa-repeat loop-none"></i>
                     </button>
                 </div>
+            </div>
 
-                <div class="volume-control">
-                    <label for="volume">Volume</label>
-                    <input id="volume" type="range" value="50" min="0" max="100" />
-                </div>
+            <div class="volume-control">
+                <label for="volume" class="volume-label">Volume</label>
+                <input id="volume" type="range" value="50" min="0" max="100" />
             </div>
         </footer>
     </body>
