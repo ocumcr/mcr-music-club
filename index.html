@@ -8,6 +8,8 @@
         <script src="survey.js"></script>
         <script src="playMusic.js"></script>
 
+        <link rel="shortcut icon" href="favicon.png" />
+
         <!-- Font Awesome CDN（アイコンを使用） -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
@@ -27,19 +29,23 @@
             </form>
 
             <div class="nav">
-                <a href="about" target="_blank">
+                <a href="about" target="_blank" title="about">
                     <i class="fa-solid fa-address-card"></i>
                     About
                 </a>
-                <a href="https://ocumcr.github.io/mcr-homepage/#top" target="_blank">
+                <a href="https://ocumcr.github.io/mcr-homepage/#top" target="_blank" title="homepage">
                     <i class="fa-solid fa-home"></i>
                     HomePage
                 </a>
-                <a href="https://x.com/ocu_mcr" target="_blank">
+                <a href="https://x.com/ocu_mcr" target="_blank" title="X">
                     <i class="fa-brands fa-twitter"></i>
                     X
                 </a>
             </div>
+
+            <a href="https://x.com/ocu_mcr" target="_blank" class="hidden-twitter" title="X">
+                <i class="fa-brands fa-twitter"></i>
+            </a>
         </header>
 
         <div class="content">
@@ -70,11 +76,16 @@
                     <button id="loop-button">
                         <i class="fa-solid fa-repeat loop-none"></i>
                     </button>
+                    <button id="shuffle-button">
+                        <i class="fa-solid fa-shuffle"></i>
+                    </button>
                 </div>
             </div>
 
             <div class="volume-control">
-                <label for="volume" class="volume-label">Volume</label>
+                <label for="volume" class="volume-label">
+                    <i class="fa-solid fa-volume-high"></i>
+                </label>
                 <input id="volume" type="range" value="50" min="0" max="100" />
             </div>
         </footer>

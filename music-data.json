@@ -1,47 +1,65 @@
 [
     {
-        "title": "The unreachable within sight.",
+        "title": "Intellectualization.wav",
+        "year": "2024",
+        "author": "extension",
+        "description": "",
+        "path": "musics/Intellectualization.wav",
+        "thumbnail": "thumbnails/bandage.png",
+        "tags": ["edm", "MINOR"]
+    },
+    {
+        "title": "Unreachability",
         "year": "2024",
         "author": "うめぼし",
         "description": "<a href='https://ipotazero.github.io/vector-space/' target='_blank'>Vector Space</a>の後半BGM",
         "path": "musics/試作31.m4a",
         "thumbnail": "thumbnails/82.png",
-        "tags": ["Vector Space", "jazz"]
+        "tags": ["Vector Space", "jazz", "MINOR"]
     },
     {
-        "title": "Vector Space.",
+        "title": "Vector Space",
         "year": "2024",
         "author": "うめぼし",
         "description": "<a href='https://ipotazero.github.io/vector-space/' target='_blank'>Vector Space</a>の通常BGM",
         "path": "musics/試作30.m4a",
         "thumbnail": "thumbnails/82.png",
-        "tags": ["Vector Space"]
+        "tags": ["Vector Space", "MINOR"]
+    },
+    {
+        "title": "ならべてトライアングル",
+        "year": "2024",
+        "author": "うめぼし",
+        "description": "<a href='https://kishunankoubai.github.io/pentamond/' target='_blank'>Pentamond</a>のBGM",
+        "path": "musics/ならべてトライアングル.m4a",
+        "thumbnail": "thumbnails/pentamond.png",
+        "tags": ["Pentamond", "MAJOR", "MINOR"]
     },
     {
         "title": "Projection.wav",
         "year": "2024",
-        "author": "",
+        "author": "extension",
         "description": "",
         "path": "musics/Projection.wav",
-        "thumbnail": "thumbnails/",
-        "tags": []
+        "thumbnail": "thumbnails/bandage.png",
+        "tags": ["MINOR"]
     },
     {
         "title": "Ascension!.wav",
         "year": "2024",
-        "author": "",
+        "author": "extension",
         "description": "",
         "path": "musics/Ascension!.wav",
-        "thumbnail": "thumbnails/",
-        "tags": ["rock"]
+        "thumbnail": "thumbnails/bandage.png",
+        "tags": ["rock", "MINOR"]
     },
     {
         "title": "Amanojaku!.wav",
         "year": "2024",
-        "author": "",
+        "author": "extension",
         "description": "",
         "path": "musics/Amanojaku!.wav",
-        "thumbnail": "thumbnails/",
-        "tags": ["rock"]
+        "thumbnail": "thumbnails/bandage.png",
+        "tags": ["rock", "MINOR"]
     }
 ]

@@ -6,50 +6,35 @@ const setButtons = (data) => {
     const volumeControl = document.getElementById("volume")
     const musicTitle = document.getElementById("music-title")
     const miniThumbnail = document.getElementById("mini-thumbnail")
+
     const loopButton = document.getElementById("loop-button")
+    const shuffleButton = document.getElementById("shuffle-button")
+
     const backButton = document.getElementById("back-button")
     const forwardButton = document.getElementById("forward-button")
 
     volumeControl.value = localStorage.getItem("volume") ?? 50
-    loopMode = localStorage.getItem("loopMode") ?? 0
 
     loopButton.innerHTML = `
         <i class="fa-solid fa-repeat ${["loop-none", "", "loop-one"][loopMode]}"></i>
     `
+    loopButton.title = ["ループしない", "ループする", "一曲ループ"][loopMode]
 
-    document.querySelectorAll(".img-box").forEach((b, i) => {
-        b.addEventListener("click", () => {
-            if (audio) audio.pause()
-
-            if (context == null) {
-                context = new AudioContext()
-                gain = context.createGain()
-                gain.connect(context.destination)
-            }
-
-            audio = new Audio(data[i].path)
-
-            audio.loop = loopMode == 2
-
-            source = context.createMediaElementSource(audio)
-
-            source.connect(gain)
-
-            setAudio(i)
-
-            playButton.innerHTML = `
-                <i class="fa-solid fa-pause"></i>
-            `
-        })
-    })
+    shuffleButton.style.opacity = ["0.5", "1"][shuffleMode]
 
     const setAudio = (i) => {
-        sendPlayCount(data[i].title)
+        safeSendPlayCount(data[i].title)
 
         gain.gain.value = volumeControl.value / 100
 
         audio.onended = () => {
             if (loopMode == 1) {
+                if (i + 1 == data.length) {
+                    data = shuffleArray(data)
+                    setMusics(data)
+                    setImgBoxAction(data, setAudio, playButton)
+                }
+
                 source.disconnect()
 
                 audio = new Audio(data[(i + 1) % data.length].path)
@@ -59,7 +44,7 @@ const setButtons = (data) => {
 
                 setAudio((i + 1) % data.length)
             } else if (loopMode == 0) {
-                if (i + 1 != data.length) {
+                if (i + 1 < data.length) {
                     source.disconnect()
 
                     audio = new Audio(data[(i + 1) % data.length].path)
@@ -111,16 +96,9 @@ const setButtons = (data) => {
             seekBar.value = audio.currentTime
             currentTimeEl.textContent = formatTime(audio.currentTime)
 
-            if (loopMode == 2 && !repeatCounted && audio.duration - audio.currentTime < 0.65) {
-                console.log("repeat-counted")
-
-                sendPlayCount(data[i].title)
-
-                repeatCounted = true
-
-                setTimeout(() => {
-                    repeatCounted = false
-                }, 1000)
+            // ループ再生を検知
+            if (loopMode == 2 && audio.duration - audio.currentTime < 0.65) {
+                safeSendPlayCount(data[i].title)
             }
 
             console.log()
@@ -136,6 +114,8 @@ const setButtons = (data) => {
             audio.play()
         })
     }
+
+    setImgBoxAction(data, setAudio, playButton)
 
     // フォーマット時刻を表示 (mm:ss)
     const formatTime = (seconds) => {
@@ -165,18 +145,26 @@ const setButtons = (data) => {
         loopMode++
         loopMode %= 3
 
-         loopButton.innerHTML = `
+        loopButton.innerHTML = `
             <i class="fa-solid fa-repeat ${["loop-none", "", "loop-one"][loopMode]}"></i>
         `
 
+        loopButton.title = ["ループしない", "ループする", "一曲ループ"][loopMode]
+
         localStorage.setItem("loopMode", loopMode)
-    
 
         if (!audio) return
 
         audio.loop = loopMode == 2
+    })
 
-       })
+    // ループボタン
+    shuffleButton.addEventListener("click", (e) => {
+        shuffleMode = 1 - shuffleMode
+        shuffleButton.style.opacity = ["0.5", "1"][shuffleMode]
+        localStorage.setItem("shuffleMode", shuffleMode)
+        console.log(shuffleMode)
+    })
 
     window.addEventListener("keydown", (e) => {
         if (e.code == "Space") {
@@ -214,8 +202,73 @@ const setButtons = (data) => {
     })
 }
 
+const setImgBoxAction = (data, setAudio, playButton) => {
+    document.querySelectorAll(".img-box").forEach((b, i) => {
+        b.addEventListener("click", () => {
+            if (audio) audio.pause()
+
+            if (context == null) {
+                context = new AudioContext()
+                gain = context.createGain()
+                gain.connect(context.destination)
+            }
+
+            audio = new Audio(data[i].path)
+
+            audio.loop = loopMode == 2
+
+            source = context.createMediaElementSource(audio)
+
+            source.connect(gain)
+
+            setAudio(i)
+
+            playButton.innerHTML = `
+                <i class="fa-solid fa-pause"></i>
+            `
+        })
+    })
+}
+
+// 音声正規化の基本構造
+async function normalizeAudio(context, audioBuffer, targetRMS = 0.1) {
+    // 1. 音声データを解析
+    const channelData = audioBuffer.getChannelData(0) // 左チャンネルのみ分析
+    let sum = 0
+    for (let i = 0; i < channelData.length; i++) {
+        sum += channelData[i] ** 2 // 平方和を計算
+    }
+    const rms = Math.sqrt(sum / channelData.length) // RMSを計算
+
+    // 2. ゲインを計算
+    const gain = targetRMS / rms
+
+    // 3. GainNodeを使って音量を調整
+    const gainNode = context.createGain()
+    gainNode.gain.value = gain
+
+    // 4. AudioBufferSourceNodeを作成してGainNodeに接続
+    const source = context.createBufferSource()
+    source.buffer = audioBuffer
+    source.connect(gainNode).connect(context.destination)
+
+    return { source, gainNode }
+}
+
+const safeSendPlayCount = (title) => {
+    if (!playCounted) {
+        sendPlayCount(title)
+        playCounted = true
+        setTimeout(() => {
+            playCounted = false
+        }, 1000)
+    }
+}
+
 const setMusics = (data) => {
     const ol = document.querySelector(".musics")
+
+    ol.innerHTML = ""
 
     data.forEach((obj) => {
         let tags = ""
@@ -266,11 +319,26 @@ const setPlayCount = (data, record) => {
     })
 }
 
-let repeatCounted = false
+// reduceを用いた実装方法
+const shuffleArray = (array) => {
+    const cloneArray = [...array]
+
+    const result = cloneArray.reduce((_, cur, idx) => {
+        const rand = Math.floor(Math.random() * (idx + 1))
+        cloneArray[idx] = cloneArray[rand]
+        cloneArray[rand] = cur
+        return cloneArray
+    })
+
+    return result
+}
+
+let playCounted = false
 
 const fd = fetchData()
 
 let loopMode = 0
+let shuffleMode = 0
 
 let audio = null
 let source = null
@@ -278,6 +346,9 @@ let context = null
 let gain = null
 
 window.addEventListener("DOMContentLoaded", async () => {
+    loopMode = localStorage.getItem("loopMode") ?? 0
+    shuffleMode = localStorage.getItem("shuffleMode") ?? 0
+
     // json取得
     const json = await fetch("music-data.json")
     let data = await json.json()
@@ -290,6 +361,10 @@ window.addEventListener("DOMContentLoaded", async () => {
     if (searchIsValid) {
         // 検索結果にヒットするものをとる
         data = data.filter((m) => m.tags.includes(search) || m.title.includes(search) || m.author == search)
+    }
+
+    if (shuffleMode == 1) {
+        data = shuffleArray(data)
     }
 
     // 表示
