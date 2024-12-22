@@ -145,6 +145,12 @@ class AudioController {
         audio.ontimeupdate = () => {
             UI.updateSeekBarAndCurrentTimeUI(audio.currentTime)
 
+            navigator.mediaSession.setPositionState({
+                duration: audio.duration,
+                playbackRate: audio.playbackRate,
+                position: audio.currentTime,
+            })
+
             // ループ再生を検知
             if (PlayerState.loopMode == 2 && audio.duration - audio.currentTime < 0.65) {
                 safeSendPlayCount(PlaylistManager.getCurrentTrackTitle())
