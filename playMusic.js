@@ -420,7 +420,14 @@ class EventHandlers {
                 if (PlayerState.wasPlaying) {
                     PlayerState.audio.play()
                 }
-                addLog(PlayerState.audio.playbackRate)
+
+                const interval = setInterval(() => {
+                    addLog(PlayerState.audio.playbackRate)
+                }, 1000 / 24)
+
+                setTimeout(() => {
+                    clearInterval(interval)
+                }, 10000)
             } else {
                 // ページから離れる時の処理
                 PlayerState.wasPlaying = !PlayerState.audio.paused
