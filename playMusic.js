@@ -404,7 +404,8 @@ class EventHandlers {
     }
 
     static setupVisibilityHandler() {
-        document.addEventListener("visibilitychange", async () => {
+        document.addEventListener("visibilitychange", async (e) => {
+            addLog("visibility changed")
             if (document.visibilityState === "visible") {
                 if (PlayerState.wasPlaying) {
                     navigator.mediaSession.playbackState = "playing"
@@ -559,6 +560,18 @@ const setNavigationMenu = (track) => {
         addLog(e.action + ": " + e.seekTime)
 
         PlayerState.audio.currentTime = e.seekTime
+    })
+
+    navigator.mediaSession.setActionHandler("seekbackward", (e) => {
+        addLog(e.action + ": " + e.seekOffset)
+
+        PlayerState.audio.currentTime -= e.seekOffset
+    })
+
+    navigator.mediaSession.setActionHandler("seekforward", (e) => {
+        addLog(e.action + ": " + e.seekOffset)
+
+        PlayerState.audio.currentTime += e.seekOffset
     })
 }
 
