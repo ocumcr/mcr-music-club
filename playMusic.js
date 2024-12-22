@@ -420,6 +420,7 @@ class EventHandlers {
                 if (PlayerState.wasPlaying) {
                     PlayerState.audio.play()
                 }
+                addLog(PlayerState.audio.playbackRate)
             } else {
                 // ページから離れる時の処理
                 PlayerState.wasPlaying = !PlayerState.audio.paused
@@ -546,13 +547,13 @@ const setupNavigationMenu = () => {
     navigator.mediaSession.setActionHandler("play", (e) => {
         addLog(e.action)
         navigator.mediaSession.playbackState = "playing"
-        // EventHandlers.togglePlayback()
+        EventHandlers.togglePlayback()
     })
 
     navigator.mediaSession.setActionHandler("pause", (e) => {
         addLog(e.action)
         navigator.mediaSession.playbackState = "paused"
-        // EventHandlers.togglePlayback()
+        EventHandlers.togglePlayback()
     })
 
     navigator.mediaSession.setActionHandler("nexttrack", (e) => {
