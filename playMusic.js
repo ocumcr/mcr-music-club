@@ -244,22 +244,6 @@ class EventHandlers {
         this.setupTitle()
         this.setupMiniThumbnail()
         this.setupVisibilityHandler()
-        this.setupDebugToggle()
-    }
-
-    static setupDebugToggle() {
-        const title = document.getElementById("title")
-
-        let timer
-
-        title.addEventListener("mousedown", () => {
-            timer = setTimeout(() => {
-                console.log("開けゴマ!")
-                document.getElementById("debug-log").style.display = "block"
-            }, 3000) // 3秒長押しで発動
-        })
-
-        title.addEventListener("mouseup", () => clearTimeout(timer))
     }
 
     static setupPlaybackControls() {
@@ -468,6 +452,11 @@ async function initializeApp() {
         UI.setSearchBox(search)
     }
 
+    if (url.searchParams.get("debug") == "true") {
+        console.log("開けゴマ!")
+        document.getElementById("debug-log").style.display = "block"
+    }
+
     PlaylistManager.setPlaylist(data)
     renderMusicList(PlayerState.playlist)
 }
@@ -546,11 +535,13 @@ const setNavigationMenu = (track) => {
     // 再生コントロール対応
     navigator.mediaSession.setActionHandler("play", (e) => {
         addLog(e.action)
+        navigator.mediaSession.playbackState = "playing"
         EventHandlers.togglePlayback()
     })
 
     navigator.mediaSession.setActionHandler("pause", (e) => {
         addLog(e.action)
+        navigator.mediaSession.playbackState = "paused"
         EventHandlers.togglePlayback()
     })
 
@@ -565,7 +556,7 @@ const setNavigationMenu = (track) => {
     })
 
     navigator.mediaSession.setActionHandler("seekto", (e) => {
-        addLog(e.action, e.seekTime)
+        addLog(e.action + ": " + e.seekTime)
 
         PlayerState.audio.currentTime = e.seekTime
     })
@@ -573,5 +564,6 @@ const setNavigationMenu = (track) => {
 
 const addLog = (text) => {
     console.log(text)
+    // document.getElementById("debug-log").innerHTML += navigator.mediaSession.playbackState + "<br />"
     document.getElementById("debug-log").innerHTML += text + "<br />"
 }
