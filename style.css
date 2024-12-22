@@ -121,8 +121,9 @@ h3 {
 .search input[type="submit"] {
     height: 95%;
     background-color: #f0f0f0;
+    color: #111;
 
-    border-radius: 2px;
+    border-radius: 5px;
     border: none;
 }
 
@@ -178,10 +179,6 @@ h3 {
 
 .playing {
     color: orangered;
-}
-
-.playing::after {
-    content: "";
 }
 
 .tag-button:hover {

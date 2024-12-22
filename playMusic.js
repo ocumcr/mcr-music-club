@@ -128,11 +128,6 @@ class AudioController {
         PlayerState.source = PlayerState.context.createMediaElementSource(PlayerState.audio)
         PlayerState.source.connect(PlayerState.gain)
 
-        // iOS Safari用のオーディオ設定
-        PlayerState.audio.setAttribute("playsinline", "")
-        PlayerState.audio.setAttribute("webkit-playsinline", "")
-        PlayerState.audio.setAttribute("preload", "auto")
-
         this.setupSeekBarUpdate(PlayerState.audio)
 
         this.updateVolume()
@@ -495,13 +490,14 @@ fetchData().then((record) => {
     UI.setPlayCount()
 })
 
+// メニューに出るやつ
 const setNavigationMenu = (track) => {
     if (!"mediaSession" in navigator) return
 
     navigator.mediaSession.metadata = new MediaMetadata({
         title: track.title ?? "",
         artist: track.author ?? "",
-        artwork: [{ src: track.thumbnail ?? "", sizes: "512x512" }],
+        artwork: [{ src: track.thumbnail ?? "" }],
     })
 
     // 再生コントロール対応
@@ -518,11 +514,5 @@ const setNavigationMenu = (track) => {
 
     navigator.mediaSession.setActionHandler("previoustrack", () => {
         EventHandlers.handleBackButton()
-    })
-
-    navigator.mediaSession.setActionHandler("seekto", (e) => {
-        console.log(e)
-        UI.elements.seekBar.value = e.value
-        // EventHandlers.handleForwardButton()
     })
 }
