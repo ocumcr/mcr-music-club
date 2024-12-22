@@ -248,10 +248,18 @@ class EventHandlers {
     }
 
     static setupDebugToggle() {
-        document.getElementById("title").addEventListener("contextmenu", (e) => {
-            console.log("開けゴマ!")
-            document.getElementById("debug-log").style.display = "block"
+        const title = document.getElementById("title")
+
+        let timer
+
+        title.addEventListener("mousedown", () => {
+            timer = setTimeout(() => {
+                console.log("開けゴマ!")
+                document.getElementById("debug-log").style.display = "block"
+            }, 3000) // 3秒長押しで発動
         })
+
+        title.addEventListener("mouseup", () => clearTimeout(timer))
     }
 
     static setupPlaybackControls() {
@@ -546,12 +554,20 @@ const setNavigationMenu = (track) => {
         EventHandlers.togglePlayback()
     })
 
-    navigator.mediaSession.setActionHandler("nexttrack", () => {
+    navigator.mediaSession.setActionHandler("nexttrack", (e) => {
+        addLog(e.action)
         EventHandlers.handleForwardButton()
     })
 
-    navigator.mediaSession.setActionHandler("previoustrack", () => {
+    navigator.mediaSession.setActionHandler("previoustrack", (e) => {
+        addLog(e.action)
         EventHandlers.handleBackButton()
+    })
+
+    navigator.mediaSession.setActionHandler("seekto", (e) => {
+        addLog(e.action, e.seekTime)
+
+        PlayerState.audio.currentTime = e.seekTime
     })
 }
 
