@@ -128,6 +128,11 @@ class AudioController {
         PlayerState.source = PlayerState.context.createMediaElementSource(PlayerState.audio)
         PlayerState.source.connect(PlayerState.gain)
 
+        // iOS Safari用のオーディオ設定
+        PlayerState.audio.setAttribute("playsinline", "")
+        PlayerState.audio.setAttribute("webkit-playsinline", "")
+        PlayerState.audio.setAttribute("preload", "auto")
+
         this.setupSeekBarUpdate(PlayerState.audio)
 
         this.updateVolume()
@@ -334,6 +339,8 @@ class EventHandlers {
     static togglePlayback() {
         if (!PlayerState.audio) return
 
+        PlayerState.audio.playbackRate = 1
+
         if (PlayerState.audio.paused) {
             PlayerState.audio.play()
             UI.updatePlayButtonUI(true)
@@ -520,6 +527,7 @@ const setNavigationMenu = (track) => {
     navigator.mediaSession.setActionHandler("play", () => {
         EventHandlers.togglePlayback()
     })
+
     navigator.mediaSession.setActionHandler("pause", () => {
         EventHandlers.togglePlayback()
     })
