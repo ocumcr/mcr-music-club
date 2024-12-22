@@ -147,9 +147,9 @@ class AudioController {
     static setupSeekBarUpdate(audio) {
         // 再生中にシークバーを更新
         audio.ontimeupdate = () => {
-            UI.updateSeekBarAndCurrentTimeUI(audio.currentTime)
+            audio.playbackRate = 1
 
-            this.updatePositionState()
+            UI.updateSeekBarAndCurrentTimeUI(audio.currentTime)
 
             // ループ再生を検知
             if (PlayerState.loopMode == 2 && audio.duration - audio.currentTime < 0.65) {
@@ -161,20 +161,6 @@ class AudioController {
     static updateVolume() {
         if (!PlayerState.gain) return
         PlayerState.gain.gain.value = UI.elements.volumeControl.value / 100
-    }
-
-    static updatePositionState() {
-        if (!PlayerState.audio || !("mediaSession" in navigator)) return
-
-        try {
-            navigator.mediaSession.setPositionState({
-                duration: PlayerState.audio.duration,
-                playbackRate: PlayerState.audio.playbackRate,
-                position: PlayerState.audio.currentTime,
-            })
-        } catch (e) {
-            console.warn("Failed to update position state:", e)
-        }
     }
 }
 
