@@ -405,23 +405,20 @@ class EventHandlers {
 
     static setupVisibilityHandler() {
         document.addEventListener("visibilitychange", async (e) => {
-            addLog("visibility changed")
+            addLog("visibility changed: " + document.visibilityState)
+            addLog("OS: " + getMobileOS())
+
+            if (getMobileOS() != "iOS") return
+
             if (document.visibilityState === "visible") {
                 if (PlayerState.wasPlaying) {
-                    navigator.mediaSession.playbackState = "playing"
-
-                    try {
-                        await PlayerState.context.resume()
-                        await PlayerState.audio.play()
-                    } catch (e) {
-                        console.warn("Playback resume failed:", e)
-                    }
+                    PlayerState.audio.play()
                 }
             } else {
                 // ページから離れる時の処理
                 PlayerState.wasPlaying = !PlayerState.audio.paused
 
-                navigator.mediaSession.playbackState = "paused"
+                PlayerState.audio.pause()
             }
         })
     }
@@ -579,4 +576,15 @@ const addLog = (text) => {
     console.log(text)
     // document.getElementById("debug-log").innerHTML += navigator.mediaSession.playbackState + "<br />"
     document.getElementById("debug-log").innerHTML += text + "<br />"
+}
+
+const getMobileOS = () => {
+    const ua = navigator.userAgent
+    if (/android/i.test(ua)) {
+        return "Android"
+    } else if (/iPad|iPhone|iPod/.test(ua)) {
+        return "iOS"
+    }
+
+    return "Other"
 }
