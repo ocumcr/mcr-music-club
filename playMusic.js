@@ -179,6 +179,8 @@ class PlaylistManager {
         renderMusicList(PlayerState.playlist)
         UI.setPlayCount()
 
+        UI.setNowPlayingTrack({ index: PlayerState.currentTrackIndex })
+
         if (PlayerState.currentTrackIndex == 0) {
             window.scrollTo({ top: 0, behavior: "smooth" })
         } else {
@@ -204,6 +206,8 @@ class PlaylistManager {
 
         renderMusicList(PlayerState.playlist)
         UI.setPlayCount()
+
+        UI.setNowPlayingTrack({ index: PlayerState.currentTrackIndex })
 
         window.scrollTo({ top: 0, behavior: "smooth" })
     }
@@ -408,6 +412,8 @@ class EventHandlers {
         document.addEventListener("visibilitychange", async () => {
             if (document.visibilityState === "visible") {
                 if (PlayerState.wasPlaying) {
+                    navigator.mediaSession.playbackState = "playing"
+
                     try {
                         await PlayerState.context.resume()
                         await PlayerState.audio.play()
@@ -418,6 +424,8 @@ class EventHandlers {
             } else {
                 // ページから離れる時の処理
                 PlayerState.wasPlaying = !PlayerState.audio.paused
+
+                navigator.mediaSession.playbackState = "paused"
             }
         })
     }
