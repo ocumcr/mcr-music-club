@@ -443,6 +443,15 @@ input[type="range"]::-moz-range-thumb {
     .nav {
         display: none;
     }
+
+    .search {
+        width: 100%;
+        margin: 0;
+    }
+
+    .search-box {
+        width: 100%;
+    }
 }
 
 @media (max-width: 768px) {
@@ -481,15 +490,6 @@ input[type="range"]::-moz-range-thumb {
 
     .hidden-twitter {
         margin: 0 10px;
-    }
-
-    .search {
-        width: 100%;
-        margin: 0;
-    }
-
-    .search-box {
-        width: 100%;
     }
 
     h1 {

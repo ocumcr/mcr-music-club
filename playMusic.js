@@ -515,4 +515,8 @@ const setNavigationMenu = (track) => {
     navigator.mediaSession.setActionHandler("previoustrack", () => {
         EventHandlers.handleBackButton()
     })
+
+    navigator.mediaSession.setActionHandler("seekto", (e) => {
+        PlayerState.audio.currentTime = e.seekTime
+    })
 }
