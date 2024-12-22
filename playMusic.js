@@ -129,11 +129,6 @@ class AudioController {
         PlayerState.source = PlayerState.context.createMediaElementSource(PlayerState.audio)
         PlayerState.source.connect(PlayerState.gain)
 
-        // iOS Safari用のオーディオ設定
-        PlayerState.audio.setAttribute("playsinline", "")
-        PlayerState.audio.setAttribute("webkit-playsinline", "")
-        PlayerState.audio.setAttribute("preload", "auto")
-
         this.setupSeekBarUpdate(PlayerState.audio)
 
         this.updateVolume()
@@ -249,6 +244,14 @@ class EventHandlers {
         this.setupTitle()
         this.setupMiniThumbnail()
         this.setupVisibilityHandler()
+        this.setupDebugToggle()
+    }
+
+    static setupDebugToggle() {
+        document.getElementById("title").addEventListener("contextmenu", (e) => {
+            console.log("開けゴマ!")
+            document.getElementById("debug-log").style.display = "block"
+        })
     }
 
     static setupPlaybackControls() {
@@ -339,7 +342,7 @@ class EventHandlers {
     }
 
     static async handleBackButton() {
-        if (PlayerState.audio && PlayerState.audio.currentTime > 1) {
+        if (PlayerState.audio && PlayerState.audio.currentTime > 0.5) {
             PlayerState.audio.currentTime = 0
             return
         }
@@ -510,14 +513,13 @@ const formatTime = (seconds) => {
 
 window.addEventListener("DOMContentLoaded", initializeApp)
 
-// グローバルスコープに必要な関数をエクスポート
-window.onClickTag = (tag) => {
+const onClickTag = (tag) => {
     const url = new URL(location.href)
     url.searchParams.set("search", tag)
     location.href = url.href
 }
 
-fetchData().then((record) => {
+fetchPlayCountData().then((record) => {
     PlayerState.record = record
 
     UI.setPlayCount()
@@ -534,11 +536,13 @@ const setNavigationMenu = (track) => {
     })
 
     // 再生コントロール対応
-    navigator.mediaSession.setActionHandler("play", () => {
+    navigator.mediaSession.setActionHandler("play", (e) => {
+        addLog(e.action)
         EventHandlers.togglePlayback()
     })
 
-    navigator.mediaSession.setActionHandler("pause", () => {
+    navigator.mediaSession.setActionHandler("pause", (e) => {
+        addLog(e.action)
         EventHandlers.togglePlayback()
     })
 
@@ -549,4 +553,9 @@ const setNavigationMenu = (track) => {
     navigator.mediaSession.setActionHandler("previoustrack", () => {
         EventHandlers.handleBackButton()
     })
+}
+
+const addLog = (text) => {
+    console.log(text)
+    document.getElementById("debug-log").innerHTML += text + "<br />"
 }

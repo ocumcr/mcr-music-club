@@ -27,7 +27,7 @@ const sendPlayCount = async (title) => {
     }
 }
 
-const fetchData = async () => {
+const fetchPlayCountData = async () => {
     const response = await fetch(
         "https://script.google.com/macros/s/AKfycbw-M6WdDND050H_DboJKixnDERBEYu1X24O6JthlZkohDJMKfrELuQ5YHDpbZ8N3eOh/exec",
     ) // WebアプリURLを指定
