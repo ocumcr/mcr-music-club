@@ -226,6 +226,7 @@ class EventHandlers {
         this.setupLoopAndShuffleControls()
         this.setupKeyboardControls()
         this.setupTitle()
+        this.setupMiniThumbnail()
     }
 
     static setupPlaybackControls() {
@@ -285,6 +286,20 @@ class EventHandlers {
             if (e.code === "Space") {
                 e.preventDefault()
                 this.togglePlayback()
+            }
+        })
+    }
+
+    static setupMiniThumbnail() {
+        UI.elements.musicTitle.addEventListener("click", () => {
+            if (PlayerState.currentTrackIndex == 0) {
+                window.scrollTo({ top: 0, behavior: "smooth" })
+            } else {
+                const track = document.querySelectorAll(".track")[PlayerState.currentTrackIndex - 1]
+
+                track.scrollIntoView({
+                    behavior: "smooth",
+                })
             }
         })
     }

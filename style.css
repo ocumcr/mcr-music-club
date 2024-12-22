@@ -273,9 +273,12 @@ ol {
     height: 40%;
     aspect-ratio: 1;
     border: #f2f2f2 1px solid;
+
 }
 
 #music-title {
+    cursor:pointer;
+    
     padding-left: 10px;
     font-size: 16px;
     overflow: hidden;
