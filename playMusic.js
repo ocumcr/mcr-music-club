@@ -96,6 +96,17 @@ const UI = {
     setSearchBox(text) {
         document.getElementById("search").value = text
     },
+
+    removeNowPlayingTrack() {
+        const nowPlayingTrack = document.querySelector(".playing")
+        if (nowPlayingTrack) {
+            nowPlayingTrack.classList.remove("playing")
+        }
+    },
+
+    setNowPlayingTrack({ index }) {
+        document.querySelectorAll(".track h3")[index].classList.add("playing")
+    },
 }
 
 // オーディオ処理のクラス<-UI,PlayerState
@@ -116,6 +127,11 @@ class AudioController {
         PlayerState.audio.loop = PlayerState.loopMode === 2
         PlayerState.source = PlayerState.context.createMediaElementSource(PlayerState.audio)
         PlayerState.source.connect(PlayerState.gain)
+
+        // iOS Safari用のオーディオ設定
+        PlayerState.audio.setAttribute("playsinline", "")
+        PlayerState.audio.setAttribute("webkit-playsinline", "")
+        PlayerState.audio.setAttribute("preload", "auto")
 
         this.setupSeekBarUpdate(PlayerState.audio)
 
@@ -331,12 +347,20 @@ class EventHandlers {
     }
 
     static async changeTrack(track, index) {
+        UI.removeNowPlayingTrack()
+
         await AudioController.initializeAudio(track)
 
         UI.updateTrackInfo(track)
         UI.updatePlayButtonUI(true)
         UI.updateSeekBarMax(PlayerState.audio.duration)
         UI.updateDurationUI(formatTime(PlayerState.audio.duration))
+
+        UI.setNowPlayingTrack({
+            index: index,
+        })
+
+        setNavigationMenu(track)
 
         PlayerState.currentTrackIndex = index
         PlayerState.audio.play()
@@ -470,3 +494,35 @@ fetchData().then((record) => {
 
     UI.setPlayCount()
 })
+
+const setNavigationMenu = (track) => {
+    if (!"mediaSession" in navigator) return
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.title ?? "",
+        artist: track.author ?? "",
+        artwork: [{ src: track.thumbnail ?? "", sizes: "512x512" }],
+    })
+
+    // 再生コントロール対応
+    navigator.mediaSession.setActionHandler("play", () => {
+        EventHandlers.togglePlayback()
+    })
+    navigator.mediaSession.setActionHandler("pause", () => {
+        EventHandlers.togglePlayback()
+    })
+
+    navigator.mediaSession.setActionHandler("nexttrack", () => {
+        EventHandlers.handleForwardButton()
+    })
+
+    navigator.mediaSession.setActionHandler("previoustrack", () => {
+        EventHandlers.handleBackButton()
+    })
+
+    navigator.mediaSession.setActionHandler("seekto", (e) => {
+        console.log(e)
+        UI.elements.seekBar.value = e.value
+        // EventHandlers.handleForwardButton()
+    })
+}
