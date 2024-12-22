@@ -6,7 +6,7 @@
         "description": "",
         "path": "musics/Intellectualization.wav",
         "thumbnail": "thumbnails/bandage.png",
-        "tags": ["edm", "MINOR"]
+        "tags": ["MINOR"]
     },
     {
         "title": "Unreachability",
@@ -61,5 +61,14 @@
         "path": "musics/Amanojaku!.wav",
         "thumbnail": "thumbnails/bandage.png",
         "tags": ["rock", "MINOR"]
+    },
+    {
+        "title": "マバラマダラ",
+        "year": "2023",
+        "author": "うめぼし",
+        "description": "Agravity Ballsのボス戦曲",
+        "path": "musics/マバラマダラ.m4a",
+        "thumbnail": "thumbnails/ag.png",
+        "tags": ["Agravity Balls", "MINOR", "変拍子"]
     }
 ]

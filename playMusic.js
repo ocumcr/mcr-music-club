@@ -1,384 +1,457 @@
-const setButtons = (data) => {
-    const playButton = document.getElementById("play-button")
-    const seekBar = document.getElementById("seekBar")
-    const currentTimeEl = document.getElementById("currentTime")
-    const durationEl = document.getElementById("duration")
-    const volumeControl = document.getElementById("volume")
-    const musicTitle = document.getElementById("music-title")
-    const miniThumbnail = document.getElementById("mini-thumbnail")
+// グローバル状態の管理
+const PlayerState = {
+    record: null,
+    audio: null,
+    source: null,
+    context: null,
+    gain: null,
+    playCounted: false,
+    loopMode: parseInt(localStorage.getItem("loopMode") ?? "0"),
+    shuffleMode: parseInt(localStorage.getItem("shuffleMode") ?? "0"),
+    currentTrackIndex: 0,
+    playlist: [],
+    defaultOrderPlaylist: [],
+}
 
-    const loopButton = document.getElementById("loop-button")
-    const shuffleButton = document.getElementById("shuffle-button")
+// UIコントロール要素の参照
+const UI = {
+    elements: null,
 
-    const backButton = document.getElementById("back-button")
-    const forwardButton = document.getElementById("forward-button")
+    initialize() {
+        this.elements = {
+            playButton: document.getElementById("play-button"),
+            seekBar: document.getElementById("seekBar"),
+            currentTimeEl: document.getElementById("currentTime"),
+            durationEl: document.getElementById("duration"),
+            volumeControl: document.getElementById("volume"),
+            musicTitle: document.getElementById("music-title"),
+            miniThumbnail: document.getElementById("mini-thumbnail"),
+            loopButton: document.getElementById("loop-button"),
+            shuffleButton: document.getElementById("shuffle-button"),
+            backButton: document.getElementById("back-button"),
+            forwardButton: document.getElementById("forward-button"),
+        }
 
-    volumeControl.value = localStorage.getItem("volume") ?? 50
+        this.initializeVolume()
+        this.updateLoopButtonUI()
+        this.updateShuffleButtonUI()
+    },
 
-    loopButton.innerHTML = `
-        <i class="fa-solid fa-repeat ${["loop-none", "", "loop-one"][loopMode]}"></i>
-    `
-    loopButton.title = ["ループしない", "ループする", "一曲ループ"][loopMode]
+    initializeVolume() {
+        this.elements.volumeControl.value = localStorage.getItem("volume") ?? 50
+    },
 
-    shuffleButton.style.opacity = ["0.5", "1"][shuffleMode]
+    updateLoopButtonUI() {
+        const loopStates = ["loop-none", "", "loop-one"]
+        const loopTitles = ["ループしない", "ループする", "一曲ループ"]
 
-    const setAudio = (i) => {
-        safeSendPlayCount(data[i].title)
+        this.elements.loopButton.innerHTML = `
+            <i class="fa-solid fa-repeat ${loopStates[PlayerState.loopMode]}"></i>
+        `
+        this.elements.loopButton.title = loopTitles[PlayerState.loopMode]
+    },
 
-        gain.gain.value = volumeControl.value / 100
+    updateShuffleButtonUI() {
+        this.elements.shuffleButton.innerHTML = `
+            <i class="fa-solid fa-shuffle ${["shuffle-off", ""][PlayerState.shuffleMode]}"></i>
+        `
+    },
 
-        audio.onended = () => {
-            if (loopMode == 1) {
-                if (i + 1 == data.length) {
-                    data = shuffleArray(data)
-                    setMusics(data)
-                    setImgBoxAction(data, setAudio, playButton)
-                }
+    updatePlayButtonUI(isPlaying) {
+        this.elements.playButton.innerHTML = `
+            <i class="fa-solid fa-${isPlaying ? "pause" : "play"}"></i>
+        `
+    },
 
-                source.disconnect()
+    updateTrackInfo(track) {
+        this.elements.musicTitle.innerHTML = `${track.title}<br />${track.author}`
+        this.elements.miniThumbnail.style.backgroundImage = `url(${track.thumbnail})`
+        this.elements.miniThumbnail.style.backgroundSize = "cover"
+    },
 
-                audio = new Audio(data[(i + 1) % data.length].path)
-                source = context.createMediaElementSource(audio)
+    updateDurationUI(formattedTime) {
+        this.elements.durationEl.innerText = formattedTime
+    },
 
-                source.connect(gain)
+    updateSeekBarMax(max) {
+        this.elements.seekBar.max = max
+    },
 
-                setAudio((i + 1) % data.length)
-            } else if (loopMode == 0) {
-                if (i + 1 < data.length) {
-                    source.disconnect()
+    updateSeekBarAndCurrentTimeUI(time) {
+        this.elements.currentTimeEl.innerText = formatTime(time)
 
-                    audio = new Audio(data[(i + 1) % data.length].path)
-                    source = context.createMediaElementSource(audio)
+        this.elements.seekBar.value = time
+    },
 
-                    source.connect(gain)
+    setPlayCount() {
+        const list = document.querySelectorAll(".play-count")
 
-                    setAudio((i + 1) % data.length)
-                } else {
-                    playButton.innerHTML = `
-                        <i class="fa-solid fa-play"></i>
-                    `
-                }
+        if (!PlayerState.record) return
+
+        PlayerState.playlist.forEach((obj, i) => {
+            list[i].innerText = "再生回数: " + (PlayerState.record[obj.title] ?? 0)
+        })
+    },
+
+    setSearchBox(text) {
+        document.getElementById("search").value = text
+    },
+}
+
+// オーディオ処理のクラス<-UI,PlayerState
+class AudioController {
+    static async initializeAudio(track) {
+        if (PlayerState.context === null) {
+            PlayerState.context = new AudioContext()
+            PlayerState.gain = PlayerState.context.createGain()
+            PlayerState.gain.connect(PlayerState.context.destination)
+        }
+
+        if (PlayerState.audio) {
+            PlayerState.audio.pause()
+            PlayerState.source.disconnect()
+        }
+
+        PlayerState.audio = new Audio(track.path)
+        PlayerState.audio.loop = PlayerState.loopMode === 2
+        PlayerState.source = PlayerState.context.createMediaElementSource(PlayerState.audio)
+        PlayerState.source.connect(PlayerState.gain)
+
+        this.setupSeekBarUpdate(PlayerState.audio)
+
+        this.updateVolume()
+
+        return new Promise((resolve) => {
+            PlayerState.audio.onloadedmetadata = (e) => {
+                resolve()
             }
-        }
+        })
+    }
 
-        backButton.onclick = (e) => {
-            if (audio.currentTime < 1) {
-                source.disconnect()
-
-                audio = new Audio(data[(i + data.length - 1) % data.length].path)
-                source = context.createMediaElementSource(audio)
-
-                source.connect(gain)
-
-                setAudio((i + data.length - 1) % data.length)
-            } else {
-                audio.currentTime = 0
-            }
-        }
-
-        forwardButton.onclick = (e) => {
-            source.disconnect()
-
-            audio = new Audio(data[(i + 1) % data.length].path)
-            source = context.createMediaElementSource(audio)
-
-            source.connect(gain)
-
-            setAudio((i + 1) % data.length)
-        }
-
-        musicTitle.innerHTML = data[i].title + "<br />" + data[i].author
-        miniThumbnail.style.backgroundImage = `url(${data[i].thumbnail})`
-        miniThumbnail.style.backgroundSize = "cover"
-
+    static setupSeekBarUpdate(audio) {
         // 再生中にシークバーを更新
-        audio.addEventListener("timeupdate", () => {
-            seekBar.value = audio.currentTime
-            currentTimeEl.textContent = formatTime(audio.currentTime)
+        audio.ontimeupdate = () => {
+            UI.updateSeekBarAndCurrentTimeUI(audio.currentTime)
 
             // ループ再生を検知
-            if (loopMode == 2 && audio.duration - audio.currentTime < 0.65) {
-                safeSendPlayCount(data[i].title)
+            if (PlayerState.loopMode == 2 && audio.duration - audio.currentTime < 0.65) {
+                safeSendPlayCount(PlaylistManager.getCurrentTrackTitle())
             }
-
-            console.log()
-
-            // if(loopMode==2 && seekBar.value)
-        })
-
-        // 音楽ファイルの読み込み完了時に初期設定
-        audio.addEventListener("loadedmetadata", () => {
-            seekBar.max = audio.duration
-            durationEl.textContent = formatTime(audio.duration)
-
-            audio.play()
-        })
+        }
     }
 
-    setImgBoxAction(data, setAudio, playButton)
+    static updateVolume() {
+        if (!PlayerState.gain) return
+        PlayerState.gain.gain.value = UI.elements.volumeControl.value / 100
+    }
+}
 
-    // フォーマット時刻を表示 (mm:ss)
-    const formatTime = (seconds) => {
-        const mins = Math.floor(seconds / 60)
-        const secs = Math.floor(seconds % 60)
-        return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`
+// プレイリスト管理のクラス
+class PlaylistManager {
+    static setPlaylist(playlist) {
+        PlayerState.defaultOrderPlaylist = playlist
+        PlayerState.playlist = PlayerState.shuffleMode ? this.shuffleArray(playlist) : playlist
     }
 
-    // 再生ボタンの動作
-    playButton.addEventListener("click", (e) => {
-        if (!audio) return
-        if (audio.paused) {
-            audio.play()
-            playButton.innerHTML = `
-                <i class="fa-solid fa-pause"></i>
-            `
+    static setOrder() {
+        const currentTrack = PlayerState.playlist[PlayerState.currentTrackIndex]
+
+        PlayerState.currentTrackIndex = PlayerState.defaultOrderPlaylist.indexOf(currentTrack)
+
+        PlayerState.playlist = [...PlayerState.defaultOrderPlaylist]
+        renderMusicList(PlayerState.playlist)
+        UI.setPlayCount()
+
+        if (PlayerState.currentTrackIndex == 0) {
+            window.scrollTo({ top: 0, behavior: "smooth" })
         } else {
-            audio.pause()
-            playButton.innerHTML = `
-                <i class="fa-solid fa-play"></i>
-            `
+            const track = document.querySelectorAll(".track")[PlayerState.currentTrackIndex - 1]
+
+            track.scrollIntoView({
+                behavior: "smooth",
+            })
         }
-    })
-
-    // ループボタン
-    loopButton.addEventListener("click", (e) => {
-        loopMode++
-        loopMode %= 3
-
-        loopButton.innerHTML = `
-            <i class="fa-solid fa-repeat ${["loop-none", "", "loop-one"][loopMode]}"></i>
-        `
-
-        loopButton.title = ["ループしない", "ループする", "一曲ループ"][loopMode]
-
-        localStorage.setItem("loopMode", loopMode)
-
-        if (!audio) return
-
-        audio.loop = loopMode == 2
-    })
-
-    // ループボタン
-    shuffleButton.addEventListener("click", (e) => {
-        shuffleMode = 1 - shuffleMode
-        shuffleButton.style.opacity = ["0.5", "1"][shuffleMode]
-        localStorage.setItem("shuffleMode", shuffleMode)
-        console.log(shuffleMode)
-    })
-
-    window.addEventListener("keydown", (e) => {
-        if (e.code == "Space") {
-            e.preventDefault()
-            if (!audio) return
-            if (audio.paused) {
-                audio.play()
-                playButton.innerHTML = `
-                    <i class="fa-solid fa-pause"></i>
-                `
-            } else {
-                audio.pause()
-                playButton.innerHTML = `
-                    <i class="fa-solid fa-play"></i>
-                `
-            }
-        }
-    })
-
-    // シークバー操作時に再生位置を変更
-    seekBar.addEventListener("input", () => {
-        if (!audio) return
-
-        audio.currentTime = seekBar.value
-    })
-
-    // 音量スライダー操作
-    volumeControl.addEventListener("input", (e) => {
-        localStorage.setItem("volume", e.target.value)
-
-        if (!audio) return
-
-        const volume = e.target.value / 100
-        gain.gain.value = volume
-    })
-}
-
-const setImgBoxAction = (data, setAudio, playButton) => {
-    document.querySelectorAll(".img-box").forEach((b, i) => {
-        b.addEventListener("click", () => {
-            if (audio) audio.pause()
-
-            if (context == null) {
-                context = new AudioContext()
-                gain = context.createGain()
-                gain.connect(context.destination)
-            }
-
-            audio = new Audio(data[i].path)
-
-            audio.loop = loopMode == 2
-
-            source = context.createMediaElementSource(audio)
-
-            source.connect(gain)
-
-            setAudio(i)
-
-            playButton.innerHTML = `
-                <i class="fa-solid fa-pause"></i>
-            `
-        })
-    })
-}
-
-// 音声正規化の基本構造
-async function normalizeAudio(context, audioBuffer, targetRMS = 0.1) {
-    // 1. 音声データを解析
-    const channelData = audioBuffer.getChannelData(0) // 左チャンネルのみ分析
-    let sum = 0
-    for (let i = 0; i < channelData.length; i++) {
-        sum += channelData[i] ** 2 // 平方和を計算
     }
-    const rms = Math.sqrt(sum / channelData.length) // RMSを計算
 
-    // 2. ゲインを計算
-    const gain = targetRMS / rms
+    static shufflePlaylist({ moveCurrentTrackToTop }) {
+        const currentTrack = PlayerState.playlist[PlayerState.currentTrackIndex]
 
-    // 3. GainNodeを使って音量を調整
-    const gainNode = context.createGain()
-    gainNode.gain.value = gain
+        // 今再生しているトラックを一番目に持ってくる
+        do {
+            PlayerState.playlist = this.shuffleArray(PlayerState.playlist)
+        } while (moveCurrentTrackToTop && PlayerState.playlist[0] != currentTrack)
 
-    // 4. AudioBufferSourceNodeを作成してGainNodeに接続
-    const source = context.createBufferSource()
-    source.buffer = audioBuffer
-    source.connect(gainNode).connect(context.destination)
+        if (moveCurrentTrackToTop) {
+            PlayerState.currentTrackIndex = 0
+        }
 
-    return { source, gainNode }
+        renderMusicList(PlayerState.playlist)
+        UI.setPlayCount()
+
+        window.scrollTo({ top: 0, behavior: "smooth" })
+    }
+
+    static shuffleArray(array) {
+        if (array.length == 1) return [...array]
+
+        return [...array].reduce((_, cur, idx, arr) => {
+            const rand = Math.floor(Math.random() * (idx + 1))
+            ;[arr[idx], arr[rand]] = [arr[rand], cur]
+            return arr
+        })
+    }
+
+    static getCurrentTrackTitle() {
+        return PlayerState.playlist[PlayerState.currentTrackIndex].title
+    }
+
+    static getNextTrack() {
+        const nextIndex = (PlayerState.currentTrackIndex + 1) % PlayerState.playlist.length
+        return { track: PlayerState.playlist[nextIndex], index: nextIndex }
+    }
+
+    static getPreviousTrack() {
+        const prevIndex =
+            (PlayerState.currentTrackIndex - 1 + PlayerState.playlist.length) % PlayerState.playlist.length
+        return { track: PlayerState.playlist[prevIndex], index: prevIndex }
+    }
 }
 
-const safeSendPlayCount = (title) => {
-    if (!playCounted) {
+// イベントハンドラの設定
+class EventHandlers {
+    static initialize() {
+        this.setupPlaybackControls()
+        this.setupSeekBarControls()
+        this.setupVolumeControls()
+        this.setupLoopAndShuffleControls()
+        this.setupKeyboardControls()
+        this.setupTitle()
+    }
+
+    static setupPlaybackControls() {
+        UI.elements.playButton.addEventListener("click", () => this.togglePlayback())
+        UI.elements.backButton.onclick = () => this.handleBackButton()
+        UI.elements.forwardButton.onclick = () => this.handleForwardButton()
+    }
+
+    static setupSeekBarControls() {
+        UI.elements.seekBar.addEventListener("input", () => {
+            if (!PlayerState.audio) return
+            PlayerState.audio.currentTime = UI.elements.seekBar.value
+        })
+    }
+
+    static setupVolumeControls() {
+        UI.elements.volumeControl.addEventListener("input", (e) => {
+            localStorage.setItem("volume", e.target.value)
+            AudioController.updateVolume()
+        })
+    }
+
+    static setupLoopAndShuffleControls() {
+        UI.elements.loopButton.addEventListener("click", () => {
+            PlayerState.loopMode = (PlayerState.loopMode + 1) % 3
+            localStorage.setItem("loopMode", PlayerState.loopMode)
+            UI.updateLoopButtonUI()
+            if (PlayerState.audio) {
+                PlayerState.audio.loop = PlayerState.loopMode === 2
+            }
+        })
+
+        UI.elements.shuffleButton.addEventListener("click", () => {
+            PlayerState.shuffleMode = 1 - PlayerState.shuffleMode
+            localStorage.setItem("shuffleMode", PlayerState.shuffleMode)
+            UI.updateShuffleButtonUI()
+
+            if (PlayerState.shuffleMode == 1) {
+                PlaylistManager.shufflePlaylist({
+                    moveCurrentTrackToTop: true,
+                })
+            } else {
+                PlaylistManager.setOrder()
+            }
+        })
+    }
+
+    static setupTitle() {
+        document.getElementById("title").addEventListener("click", (e) => {
+            e.preventDefault()
+            window.location.href = window.location.origin + window.location.pathname
+        })
+    }
+
+    static setupKeyboardControls() {
+        window.addEventListener("keydown", (e) => {
+            if (e.code === "Space") {
+                e.preventDefault()
+                this.togglePlayback()
+            }
+        })
+    }
+
+    static togglePlayback() {
+        if (!PlayerState.audio) return
+
+        if (PlayerState.audio.paused) {
+            PlayerState.audio.play()
+            UI.updatePlayButtonUI(true)
+        } else {
+            PlayerState.audio.pause()
+            UI.updatePlayButtonUI(false)
+        }
+    }
+
+    static async handleBackButton() {
+        if (PlayerState.audio && PlayerState.audio.currentTime > 1) {
+            PlayerState.audio.currentTime = 0
+            return
+        }
+
+        const { track, index } = PlaylistManager.getPreviousTrack()
+        await this.changeTrack(track, index)
+    }
+
+    static async handleForwardButton() {
+        this.playNextTrack()
+    }
+
+    static async changeTrack(track, index) {
+        await AudioController.initializeAudio(track)
+
+        UI.updateTrackInfo(track)
+        UI.updatePlayButtonUI(true)
+        UI.updateSeekBarMax(PlayerState.audio.duration)
+        UI.updateDurationUI(formatTime(PlayerState.audio.duration))
+
+        PlayerState.currentTrackIndex = index
+        PlayerState.audio.play()
+
+        this.setupTrackEndedHandler()
+
+        safeSendPlayCount(PlaylistManager.getCurrentTrackTitle())
+    }
+
+    static async playNextTrack() {
+        const isLastTrack = PlayerState.playlist.length - 1 == PlayerState.currentTrackIndex
+
+        if (isLastTrack) {
+            window.scrollTo({ top: 0, behavior: "smooth" })
+        }
+
+        if (isLastTrack && PlayerState.shuffleMode == 1) {
+            PlaylistManager.shufflePlaylist({
+                moveCurrentTrackToTop: false,
+            })
+        }
+
+        const { track, index } = PlaylistManager.getNextTrack()
+        await this.changeTrack(track, index)
+    }
+
+    static setupTrackEndedHandler() {
+        PlayerState.audio.onended = async () => {
+            if (PlayerState.loopMode === 1) {
+                this.playNextTrack()
+            } else if (PlayerState.loopMode === 0) {
+                const { track, index } = PlaylistManager.getNextTrack()
+                if (index !== 0) {
+                    await this.changeTrack(track, index)
+                } else {
+                    UI.updatePlayButtonUI(false)
+                }
+            }
+        }
+    }
+}
+
+safeSendPlayCount = (title) => {
+    if (!PlayerState.playCounted) {
         sendPlayCount(title)
-        playCounted = true
+        PlayerState.playCounted = true
         setTimeout(() => {
-            playCounted = false
+            PlayerState.playCounted = false
         }, 1000)
     }
 }
 
-const setMusics = (data) => {
-    const ol = document.querySelector(".musics")
+// アプリケーションの初期化
+async function initializeApp() {
+    UI.initialize()
+    EventHandlers.initialize()
 
-    ol.innerHTML = ""
+    const response = await fetch("music-data.json")
+    let data = await response.json()
 
-    data.forEach((obj) => {
-        let tags = ""
-
-        obj.tags.forEach((tag) => {
-            tags += `
-                <button class="tag-button" onclick="onClickTag('${tag}')">#${tag}</button>
-            `
-        })
-
-        ol.innerHTML += `
-             <li>
-                <div class="img-box" style="
-                    background: url(${obj.thumbnail});
-                    background-size: cover;
-                "></div>
-
-                <div class="description">
-                    <h3>${obj.title}</h3>
-                    <p>
-                        ${obj.year}年
-                    </p>
-                    <p onclick="onClickTag('${obj.author}')" class="author">${obj.author}</p>
-                    <p>${obj.description}</p>
-                    <div class="tags">
-                        ${tags}
-                    </div>
-                </div>
-
-                <div class="play-count">取得中...</div>
-            </li>
-        `
-    })
-}
-
-const onClickTag = (tag) => {
-    const url = new URL(location.href)
-    url.searchParams.set("search", tag)
-
-    location.href = url.href
-}
-
-const setPlayCount = (data, record) => {
-    const list = document.querySelectorAll(".play-count")
-
-    data.forEach((obj, i) => {
-        list[i].innerText = "再生回数: " + (record[obj.title] ?? 0)
-    })
-}
-
-// reduceを用いた実装方法
-const shuffleArray = (array) => {
-    const cloneArray = [...array]
-
-    const result = cloneArray.reduce((_, cur, idx) => {
-        const rand = Math.floor(Math.random() * (idx + 1))
-        cloneArray[idx] = cloneArray[rand]
-        cloneArray[rand] = cur
-        return cloneArray
-    })
-
-    return result
-}
-
-let playCounted = false
-
-const fd = fetchData()
-
-let loopMode = 0
-let shuffleMode = 0
-
-let audio = null
-let source = null
-let context = null
-let gain = null
-
-window.addEventListener("DOMContentLoaded", async () => {
-    loopMode = localStorage.getItem("loopMode") ?? 0
-    shuffleMode = localStorage.getItem("shuffleMode") ?? 0
-
-    // json取得
-    const json = await fetch("music-data.json")
-    let data = await json.json()
-
-    // urlの検索を取得
     const url = new URL(location.href)
     const search = url.searchParams.get("search")
 
-    const searchIsValid = search != "" && search != null
-    if (searchIsValid) {
-        // 検索結果にヒットするものをとる
-        data = data.filter((m) => m.tags.includes(search) || m.title.includes(search) || m.author == search)
+    if (search) {
+        data = data.filter((m) => m.tags.includes(search) || m.title.includes(search) || m.author === search)
+        UI.setSearchBox(search)
     }
 
-    if (shuffleMode == 1) {
-        data = shuffleArray(data)
-    }
+    PlaylistManager.setPlaylist(data)
+    renderMusicList(PlayerState.playlist)
+}
 
-    // 表示
-    setMusics(data)
+// 音楽リストのレンダリング
+function renderMusicList(data) {
+    const ol = document.querySelector(".musics")
 
-    // 再生設定
-    setButtons(data)
+    ol.innerHTML = data
+        .map(
+            (track, index) => `
+                <li class="track">
+                    <div class="img-box" style="
+                        background: url(${track.thumbnail});
+                        background-size: cover;
+                    "></div>
+                    <div class="description">
+                        <h3>${track.title}</h3>
+                        <p>${track.year}年</p>
+                        <p onclick="onClickTag('${track.author}')" class="author">${track.author}</p>
+                        <p>${track.description}</p>
+                        <div class="tags">
+                            ${track.tags
+                                .map(
+                                    (tag) => `
+                                <button class="tag-button" onclick="onClickTag('${tag}')">#${tag}</button>
+                            `,
+                                )
+                                .join("")}
+                        </div>
+                    </div>
+                    <div class="play-count">取得中...</div>
+                </li>
+            `,
+        )
+        .join("")
 
-    document.getElementById("title").addEventListener("click", (e) => {
-        e.preventDefault()
-        window.location.href = window.location.origin + window.location.pathname
+    // 各トラックのクリックイベントを設定
+    document.querySelectorAll(".img-box").forEach((box, index) => {
+        box.addEventListener("click", async () => {
+            await EventHandlers.changeTrack(data[index], index)
+        })
     })
+}
 
-    const record = await fd
+const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = Math.floor(seconds % 60)
+    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`
+}
 
-    setPlayCount(data, record)
+window.addEventListener("DOMContentLoaded", initializeApp)
+
+// グローバルスコープに必要な関数をエクスポート
+window.onClickTag = (tag) => {
+    const url = new URL(location.href)
+    url.searchParams.set("search", tag)
+    location.href = url.href
+}
+
+fetchData().then((record) => {
+    PlayerState.record = record
+
+    UI.setPlayCount()
 })

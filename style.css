@@ -128,6 +128,11 @@ h3 {
 
     padding: 0;
     margin: 0;
+
+    font-size:24px;
+
+    font-family:"Noto Sans JP",sans-serif;
+    
 }
 
 /* 中身ここから */
@@ -331,6 +336,8 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .volume-control {
+    min-width:160px;
+    
     display: flex;
     justify-content: right;
     align-items: center;
@@ -403,6 +410,10 @@ input[type="range"]::-moz-range-thumb {
     border-radius: 50%;
 }
 
+.shuffle-off {
+    opacity: 0.5;
+}
+
 /* 画面幅 */
 
 @media (max-width: 1200px) {
@@ -449,7 +460,7 @@ input[type="range"]::-moz-range-thumb {
     }
 }
 
-@media (max-width: 450px) {
+@media (max-width: 530px) {
     h1 {
         font-size: 24px;
     }
