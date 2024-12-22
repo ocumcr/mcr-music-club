@@ -546,13 +546,13 @@ const setupNavigationMenu = () => {
     navigator.mediaSession.setActionHandler("play", (e) => {
         addLog(e.action)
         navigator.mediaSession.playbackState = "playing"
-        EventHandlers.togglePlayback()
+        // EventHandlers.togglePlayback()
     })
 
     navigator.mediaSession.setActionHandler("pause", (e) => {
         addLog(e.action)
         navigator.mediaSession.playbackState = "paused"
-        EventHandlers.togglePlayback()
+        // EventHandlers.togglePlayback()
     })
 
     navigator.mediaSession.setActionHandler("nexttrack", (e) => {
