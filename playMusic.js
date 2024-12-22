@@ -536,19 +536,6 @@ const setNavigationMenu = (track) => {
         artwork: [{ src: track.thumbnail ?? "" }],
     })
 
-    // 再生コントロール対応
-    navigator.mediaSession.setActionHandler("play", (e) => {
-        addLog(e.action)
-        navigator.mediaSession.playbackState = "playing"
-        EventHandlers.togglePlayback()
-    })
-
-    navigator.mediaSession.setActionHandler("pause", (e) => {
-        addLog(e.action)
-        navigator.mediaSession.playbackState = "paused"
-        EventHandlers.togglePlayback()
-    })
-
     navigator.mediaSession.setActionHandler("nexttrack", (e) => {
         addLog(e.action)
         EventHandlers.handleForwardButton()
@@ -557,24 +544,6 @@ const setNavigationMenu = (track) => {
     navigator.mediaSession.setActionHandler("previoustrack", (e) => {
         addLog(e.action)
         EventHandlers.handleBackButton()
-    })
-
-    navigator.mediaSession.setActionHandler("seekto", (e) => {
-        addLog(e.action + ": " + e.seekTime)
-
-        PlayerState.audio.currentTime = e.seekTime
-    })
-
-    navigator.mediaSession.setActionHandler("seekbackward", (e) => {
-        addLog(e.action + ": " + e.seekOffset)
-
-        PlayerState.audio.currentTime -= e.seekOffset
-    })
-
-    navigator.mediaSession.setActionHandler("seekforward", (e) => {
-        addLog(e.action + ": " + e.seekOffset)
-
-        PlayerState.audio.currentTime += e.seekOffset
     })
 }
 
