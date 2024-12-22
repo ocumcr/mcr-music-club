@@ -1,5 +1,6 @@
 // グローバル状態の管理
 const PlayerState = {
+    wasPlaying: false,
     record: null,
     audio: null,
     source: null,
@@ -147,8 +148,6 @@ class AudioController {
     static setupSeekBarUpdate(audio) {
         // 再生中にシークバーを更新
         audio.ontimeupdate = () => {
-            audio.playbackRate = 1
-
             UI.updateSeekBarAndCurrentTimeUI(audio.currentTime)
 
             // ループ再生を検知
@@ -245,6 +244,7 @@ class EventHandlers {
         this.setupKeyboardControls()
         this.setupTitle()
         this.setupMiniThumbnail()
+        this.setupVisibilityHandler()
     }
 
     static setupPlaybackControls() {
@@ -325,8 +325,6 @@ class EventHandlers {
     static togglePlayback() {
         if (!PlayerState.audio) return
 
-        PlayerState.audio.playbackRate = 1
-
         if (PlayerState.audio.paused) {
             PlayerState.audio.play()
             UI.updatePlayButtonUI(true)
@@ -404,6 +402,24 @@ class EventHandlers {
                 }
             }
         }
+    }
+
+    static setupVisibilityHandler() {
+        document.addEventListener("visibilitychange", async () => {
+            if (document.visibilityState === "visible") {
+                if (PlayerState.wasPlaying) {
+                    try {
+                        await PlayerState.context.resume()
+                        await PlayerState.audio.play()
+                    } catch (e) {
+                        console.warn("Playback resume failed:", e)
+                    }
+                }
+            } else {
+                // ページから離れる時の処理
+                PlayerState.wasPlaying = !PlayerState.audio.paused
+            }
+        })
     }
 }
 
@@ -524,9 +540,5 @@ const setNavigationMenu = (track) => {
 
     navigator.mediaSession.setActionHandler("previoustrack", () => {
         EventHandlers.handleBackButton()
-    })
-
-    navigator.mediaSession.setActionHandler("seekto", (e) => {
-        PlayerState.audio.currentTime = e.seekTime
     })
 }
