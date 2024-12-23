@@ -474,7 +474,7 @@ function renderMusicList(data) {
                     "></div>
                     <div class="description">
                         <h3>${track.title}</h3>
-                        <p>${track.year}年</p>
+                        <p>${track.year}</p>
                         <p onclick="onClickTag('${track.author}')" class="author">${track.author}</p>
                         <p>${track.description}</p>
                         <div class="tags">
