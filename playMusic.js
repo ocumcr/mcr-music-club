@@ -1,5 +1,6 @@
 // グローバル状態の管理
 const PlayerState = {
+    data: [],
     wasPlaying: false,
     record: null,
     audio: null,
@@ -300,7 +301,9 @@ class EventHandlers {
     static setupTitle() {
         document.getElementById("title").addEventListener("click", (e) => {
             e.preventDefault()
-            window.location.href = window.location.origin + window.location.pathname
+
+            history.pushState(null, "", window.location.origin + window.location.pathname)
+            handleQueryChange(new URLSearchParams(window.location.search).toString())
         })
     }
 
@@ -410,31 +413,26 @@ class EventHandlers {
     }
 
     static setupVisibilityHandler() {
-        document.addEventListener("visibilitychange", async (e) => {
-            addLog("visibility changed: " + document.visibilityState)
-            addLog("OS: " + getMobileOS())
-
-            if (getMobileOS() != "iOS") return
-
-            if (document.visibilityState === "visible") {
-                if (PlayerState.wasPlaying) {
-                    PlayerState.audio.play()
-                }
-
-                const interval = setInterval(() => {
-                    addLog(PlayerState.audio.playbackRate)
-                }, 1000 / 24)
-
-                setTimeout(() => {
-                    clearInterval(interval)
-                }, 10000)
-            } else {
-                // ページから離れる時の処理
-                PlayerState.wasPlaying = !PlayerState.audio.paused
-
-                PlayerState.audio.pause()
-            }
-        })
+        // document.addEventListener("visibilitychange", async (e) => {
+        //     addLog("visibility changed: " + document.visibilityState)
+        //     addLog("OS: " + getMobileOS())
+        //     if (getMobileOS() != "iOS") return
+        //     if (document.visibilityState === "visible") {
+        //         if (PlayerState.wasPlaying) {
+        //             PlayerState.audio.play()
+        //         }
+        //         const interval = setInterval(() => {
+        //             addLog(PlayerState.audio.playbackRate)
+        //         }, 1000 / 24)
+        //         setTimeout(() => {
+        //             clearInterval(interval)
+        //         }, 10000)
+        //     } else {
+        //         // ページから離れる時の処理
+        //         PlayerState.wasPlaying = !PlayerState.audio.paused
+        //         PlayerState.audio.pause()
+        //     }
+        // })
     }
 }
 
@@ -454,25 +452,12 @@ async function initializeApp() {
     EventHandlers.initialize()
 
     const response = await fetch("music-data.json")
-    let data = await response.json()
+    PlayerState.data = await response.json()
 
-    const url = new URL(location.href)
-    const search = url.searchParams.get("search")
-
-    if (search) {
-        data = data.filter((m) => m.tags.includes(search) || m.title.includes(search) || m.author === search)
-        UI.setSearchBox(search)
-    }
-
-    if (url.searchParams.get("debug") == "true") {
-        console.log("開けゴマ!")
-        document.getElementById("debug-log").style.display = "block"
-    }
+    // 初期ロード時のクエリ処理
+    handleQueryChange(new URLSearchParams(window.location.search).toString())
 
     setupNavigationMenu()
-
-    PlaylistManager.setPlaylist(data)
-    renderMusicList(PlayerState.playlist)
 }
 
 // 音楽リストのレンダリング
@@ -522,12 +507,11 @@ const formatTime = (seconds) => {
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`
 }
 
-window.addEventListener("DOMContentLoaded", initializeApp)
-
 const onClickTag = (tag) => {
     const url = new URL(location.href)
     url.searchParams.set("search", tag)
-    location.href = url.href
+    history.pushState(null, "", url.href)
+    handleQueryChange(new URLSearchParams(window.location.search).toString())
 }
 
 fetchPlayCountData().then((record) => {
@@ -608,3 +592,44 @@ const getMobileOS = () => {
 
     return "Other"
 }
+
+// クエリ変更時に呼び出される関数
+function handleQueryChange() {
+    console.log("クエリパラメータが変更されました: ")
+
+    const url = new URL(location.href)
+    const search = url.searchParams.get("search")
+
+    let data = PlayerState.data
+
+    UI.setSearchBox("")
+
+    if (search) {
+        data = PlayerState.data.filter(
+            (m) => m.tags.includes(search) || m.title.includes(search) || m.author === search,
+        )
+        UI.setSearchBox(search)
+    }
+
+    if (url.searchParams.get("debug") == "true") {
+        console.log("開けゴマ!")
+        document.getElementById("debug-log").style.display = "block"
+    }
+
+    PlaylistManager.setPlaylist(data)
+    renderMusicList(PlayerState.playlist)
+
+    UI.setPlayCount()
+}
+
+// 履歴変更検知用のイベントリスナー
+window.addEventListener("popstate", (event) => {
+    event.preventDefault() // ページ遷移をキャンセル
+
+    const params = new URLSearchParams(window.location.search).toString()
+    handleQueryChange(params) // 関数実行
+
+    console.log("pop")
+})
+
+window.addEventListener("DOMContentLoaded", initializeApp)
