@@ -1,5 +1,32 @@
 [
     {
+        "title": "まいんどすいーぱー-novel",
+        "year": "2024/12",
+        "author": "うめぼし",
+        "description": "問答シーンのBGM",
+        "path": "musics/novel.m4a",
+        "thumbnail": "thumbnails/heart.png",
+        "tags": ["まいんどすいーぱー", "MAJOR"]
+    },
+    {
+        "title": "まいんどすいーぱー-title",
+        "year": "2024/12",
+        "author": "extension",
+        "description": "タイトルのBGM",
+        "path": "musics/title.mp3",
+        "thumbnail": "thumbnails/heart.png",
+        "tags": ["まいんどすいーぱー", "MAJOR"]
+    },
+    {
+        "title": "まいんどすいーぱー-mine",
+        "year": "2024/12",
+        "author": "extension",
+        "description": "ゲームのBGM",
+        "path": "musics/mine.mp3",
+        "thumbnail": "thumbnails/heart.png",
+        "tags": ["まいんどすいーぱー", "MINOR"]
+    },
+    {
         "title": "Intellectualization.wav",
         "year": "2024/12",
         "author": "extension",
