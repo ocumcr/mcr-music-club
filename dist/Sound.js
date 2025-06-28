@@ -1,6 +1,6 @@
 export class Sound {
     static #isReady = false;
-    static audio;
+    static audio = null;
     static #source;
     static #context;
     static #gain;

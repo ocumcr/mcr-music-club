@@ -1,21 +1,27 @@
-import { Path, UI } from "./UI.js"
+import { Header, Footer } from "./UI.js"
 import { EventHandlers } from "./EventHandler.js"
 import { PlayerState } from "./PlayerState.js"
 import { handleQueryChange, setupNavigationMenu } from "./playMusic.js"
+import { fetchPlayCountData } from "./survey.js"
 
 window.addEventListener("DOMContentLoaded", initializeApp)
 
 // アプリケーションの初期化
 async function initializeApp() {
-    UI.initialize()
-    Path.init()
-    EventHandlers.initialize()
+    Footer.init()
+    Header.init()
+    EventHandlers.init()
 
     const response = await fetch("music-data.json")
     PlayerState.data = await response.json()
+
+    console.log({ ...PlayerState })
 
     // 初期ロード時のクエリ処理
     handleQueryChange()
 
     setupNavigationMenu()
+
+    PlayerState.record = await fetchPlayCountData()
+    Footer.setPlayCount()
 }

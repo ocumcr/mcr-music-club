@@ -1,19 +1,18 @@
 import { PlayerState } from "./PlayerState.js";
-import { renderMusicList } from "./playMusic.js";
-import { UI } from "./UI.js";
+import { TrackElement, Footer } from "./UI.js";
 // プレイリスト管理のクラス
 export class PlaylistManager {
     static setPlaylist(playlist) {
         PlayerState.defaultOrderPlaylist = playlist;
-        PlayerState.playlist = PlayerState.shuffleMode ? this.shuffleArray(playlist) : playlist;
+        PlayerState.playlist = PlayerState.shuffleMode ? this.#shuffleArray(playlist) : playlist;
     }
     static setOrder() {
         const currentTrack = PlayerState.playlist[PlayerState.currentTrackIndex];
         PlayerState.currentTrackIndex = PlayerState.defaultOrderPlaylist.indexOf(currentTrack);
         PlayerState.playlist = [...PlayerState.defaultOrderPlaylist];
-        renderMusicList(PlayerState.playlist);
-        UI.setPlayCount();
-        UI.setNowPlayingTrack({ index: PlayerState.currentTrackIndex });
+        TrackElement.renderMusicList(PlayerState.playlist);
+        Footer.setPlayCount();
+        Footer.setNowPlayingTrack({ index: PlayerState.currentTrackIndex });
         if (PlayerState.currentTrackIndex == 0) {
             window.scrollTo({ top: 0, behavior: "smooth" });
         }
@@ -28,17 +27,17 @@ export class PlaylistManager {
         const currentTrack = PlayerState.playlist[PlayerState.currentTrackIndex];
         // 今再生しているトラックを一番目に持ってくる
         do {
-            PlayerState.playlist = this.shuffleArray(PlayerState.playlist);
+            PlayerState.playlist = this.#shuffleArray(PlayerState.playlist);
         } while (moveCurrentTrackToTop && PlayerState.playlist[0] != currentTrack);
         if (moveCurrentTrackToTop) {
             PlayerState.currentTrackIndex = 0;
         }
-        renderMusicList(PlayerState.playlist);
-        UI.setPlayCount();
-        UI.setNowPlayingTrack({ index: PlayerState.currentTrackIndex });
+        TrackElement.renderMusicList(PlayerState.playlist);
+        Footer.setPlayCount();
+        Footer.setNowPlayingTrack({ index: PlayerState.currentTrackIndex });
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
-    static shuffleArray(array) {
+    static #shuffleArray(array) {
         if (array.length == 1)
             return [...array];
         return [...array].reduce((_, cur, idx, arr) => {

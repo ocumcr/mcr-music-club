@@ -2,10 +2,10 @@ import { PlayerState } from "./PlayerState.js"
 import { PlaylistManager } from "./PlaylistManager.js"
 import { safeSendPlayCount } from "./playMusic.js"
 import { Sound } from "./Sound.js"
-import { UI } from "./UI.js"
+import { Footer } from "./UI.js"
 
-// オーディオ処理のクラス<-UI,PlayerState
-export class AudioController {
+// Soundを使うクラス
+export class SoundController {
     static async initializeAudio(track: Track) {
         await Sound.load(track.path, PlayerState.loopMode === 2)
 
@@ -19,7 +19,7 @@ export class AudioController {
     static #setupSeekBarUpdate(audio: HTMLAudioElement) {
         // 再生中にシークバーを更新
         audio.ontimeupdate = () => {
-            UI.updateSeekBarAndCurrentTimeUI(audio.currentTime)
+            Footer.updateSeekBarAndCurrentTimeUI(audio.currentTime)
 
             navigator.mediaSession.setPositionState({
                 duration: audio.duration,
@@ -35,6 +35,6 @@ export class AudioController {
     }
 
     static updateVolume() {
-        Sound.setVolume(+UI.elements.volumeControl.value / 100)
+        Sound.setVolume(+Footer.elements.volumeControl.value / 100)
     }
 }

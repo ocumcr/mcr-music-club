@@ -2,8 +2,8 @@ import { EventHandlers } from "./EventHandler.js";
 import { PlayerState } from "./PlayerState.js";
 import { PlaylistManager } from "./PlaylistManager.js";
 import { Sound } from "./Sound.js";
-import { fetchPlayCountData, sendPlayCount } from "./survey.js";
-import { Path, UI } from "./UI.js";
+import { sendPlayCount } from "./survey.js";
+import { Header, TrackElement, Footer } from "./UI.js";
 export const safeSendPlayCount = (title) => {
     if (!PlayerState.playCounted) {
         sendPlayCount(title);
@@ -13,40 +13,6 @@ export const safeSendPlayCount = (title) => {
         }, 1000);
     }
 };
-// 音楽リストのレンダリング
-export function renderMusicList(data) {
-    const ol = document.querySelector(".musics");
-    ol.innerHTML = data
-        .map((track, index) => `
-                <li class="track">
-                    <div class="img-box" style="
-                        background: url(${track.thumbnail});
-                        background-size: cover;
-                    "></div>
-                    <div class="description">
-                        <h3>${track.title}</h3>
-                        <p>${track.year}</p>
-                        <p onclick="onClickTag('${track.author}')" class="author">${track.author}</p>
-                        <p>${track.description}</p>
-                        <div class="tags">
-                            ${track.tags
-        .map((tag) => `
-                                <button class="tag-button" onclick="onClickTag('${tag}')">#${tag}</button>
-                            `)
-        .join("")}
-                        </div>
-                    </div>
-                    <div class="play-count">取得中...</div>
-                </li>
-            `)
-        .join("");
-    // 各トラックのクリックイベントを設定
-    document.querySelectorAll(".img-box").forEach((box, index) => {
-        box.addEventListener("click", async () => {
-            await EventHandlers.changeTrack(data[index], index);
-        });
-    });
-}
 export const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -58,10 +24,6 @@ export const onClickTag = (tag) => {
     history.pushState(null, "", url.href);
     handleQueryChange();
 };
-fetchPlayCountData().then((record) => {
-    PlayerState.record = record;
-    UI.setPlayCount();
-});
 // メニューに出るやつ
 export const setNavigationMenu = (track) => {
     if (!("mediaSession" in navigator))
@@ -116,41 +78,39 @@ export const setupNavigationMenu = () => {
 const addLog = (text) => {
     console.log(text);
     // document.getElementById("debug-log").innerHTML += navigator.mediaSession.playbackState + "<br />"
-    Path.debugLog.innerHTML += text + "<br />";
+    Header.debugLog.innerHTML += text + "<br />";
 };
-export const getMobileOS = () => {
-    const ua = navigator.userAgent;
-    if (/android/i.test(ua)) {
-        return "Android";
-    }
-    else if (/iPad|iPhone|iPod/.test(ua)) {
-        return "iOS";
-    }
-    return "Other";
-};
+// export const getMobileOS = () => {
+//     const ua = navigator.userAgent
+//     if (/android/i.test(ua)) {
+//         return "Android"
+//     } else if (/iPad|iPhone|iPod/.test(ua)) {
+//         return "iOS"
+//     }
+//     return "Other"
+// }
 // クエリ変更時に呼び出される関数
 export function handleQueryChange() {
     console.log("クエリパラメータが変更されました: ");
     const url = new URL(location.href);
     const search = url.searchParams.get("search");
     let data = PlayerState.data;
-    UI.setSearchBox("");
+    Header.setSearchBox("");
     if (search) {
         data = PlayerState.data.filter((m) => m.tags.includes(search) || m.title.includes(search) || m.author === search);
-        UI.setSearchBox(search);
+        Header.setSearchBox(search);
     }
     if (url.searchParams.get("debug") == "true") {
         console.log("開けゴマ!");
-        Path.debugLog.style.display = "block";
+        Header.debugLog.style.display = "block";
     }
     PlaylistManager.setPlaylist(data);
-    renderMusicList(PlayerState.playlist);
-    UI.setPlayCount();
+    TrackElement.renderMusicList(PlayerState.playlist);
+    Footer.setPlayCount();
 }
 // 履歴変更検知用のイベントリスナー
 window.addEventListener("popstate", (event) => {
     event.preventDefault(); // ページ遷移をキャンセル
-    const params = new URLSearchParams(window.location.search).toString();
     handleQueryChange(); // 関数実行
-    console.log("pop");
+    console.log("popped");
 });

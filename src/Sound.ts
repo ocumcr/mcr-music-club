@@ -1,7 +1,7 @@
 export class Sound {
     static #isReady = false
 
-    static audio?: HTMLAudioElement
+    static audio: HTMLAudioElement | null = null
 
     static #source: MediaElementAudioSourceNode
     static #context: AudioContext

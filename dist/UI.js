@@ -1,9 +1,11 @@
+import { EventHandlers } from "./EventHandler.js";
+import { LocalStorage } from "./LocalStorage.js";
 import { PlayerState } from "./PlayerState.js";
 import { formatTime } from "./playMusic.js";
 // UIコントロール要素の参照
-export class UI {
+export class Footer {
     static elements;
-    static initialize() {
+    static init() {
         this.elements = {
             playButton: document.getElementById("play-button"),
             seekBar: document.getElementById("seekBar"),
@@ -22,7 +24,7 @@ export class UI {
         this.updateShuffleButtonUI();
     }
     static #initializeVolume() {
-        this.elements.volumeControl.value = localStorage.getItem("volume") ?? "50";
+        this.elements.volumeControl.value = "" + LocalStorage.volume;
     }
     static updateLoopButtonUI() {
         const loopStates = ["loop-none", "", "loop-one"];
@@ -65,11 +67,6 @@ export class UI {
             list[i].innerText = "再生回数: " + (PlayerState.record[obj.title] ?? 0);
         });
     }
-    static setSearchBox(text) {
-        const search = document.getElementById("search");
-        if (search)
-            search.value = text;
-    }
     static removeNowPlayingTrack() {
         const nowPlayingTrack = document.querySelector(".playing");
         if (nowPlayingTrack) {
@@ -83,11 +80,50 @@ export class UI {
         }
     }
 }
-export class Path {
+export class Header {
     static title;
     static debugLog;
+    static #search;
     static init() {
         this.title = document.getElementById("title");
         this.debugLog = document.getElementById("debug-log");
+        this.#search = document.getElementById("search");
+    }
+    static setSearchBox(text) {
+        this.#search.value = text;
+    }
+}
+export class TrackElement {
+    static renderMusicList(data) {
+        const ol = document.querySelector(".musics");
+        const createTrackElement = (track, index) => `
+            <li class="track">
+                <div class="img-box" style="
+                    background: url(${track.thumbnail});
+                    background-size: cover;
+                "></div>
+                <div class="description">
+                    <h3>${track.title}</h3>
+                    <p>${track.year}</p>
+                    <p onclick="onClickTag('${track.author}')" class="author">${track.author}</p>
+                    <p>${track.description}</p>
+                    <div class="tags">
+                        ${track.tags
+            .map((tag) => `
+                                    <button class="tag-button" onclick="onClickTag('${tag}')">#${tag}</button>
+                                `)
+            .join("")}
+                    </div>
+                </div>
+                <div class="play-count">取得中...</div>
+            </li>
+        `;
+        ol.innerHTML = data.map(createTrackElement).join("");
+        // 各トラックのクリックイベントを設定
+        document.querySelectorAll(".img-box").forEach((box, index) => {
+            box.addEventListener("click", async () => {
+                await EventHandlers.changeTrack(data[index], index);
+            });
+        });
     }
 }

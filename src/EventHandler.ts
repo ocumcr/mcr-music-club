@@ -1,13 +1,18 @@
-import { AudioController } from "./AudioController.js"
+import { SoundController } from "./SoundController.js"
 import { PlayerState } from "./PlayerState.js"
 import { PlaylistManager } from "./PlaylistManager.js"
 import { formatTime, handleQueryChange, safeSendPlayCount, setNavigationMenu } from "./playMusic.js"
 import { Sound } from "./Sound.js"
-import { Path, UI } from "./UI.js"
+import { Header, Footer } from "./UI.js"
+import { LocalStorage } from "./LocalStorage.js"
 
 // イベントハンドラの設定
 export class EventHandlers {
-    static initialize() {
+    static #initialized = false
+
+    static init() {
+        if (this.#initialized) throw new Error("すでにinitialized!")
+
         this.#setupPlaybackControls()
         this.#setupSeekBarControls()
         this.#setupVolumeControls()
@@ -16,45 +21,49 @@ export class EventHandlers {
         this.#setupTitle()
         this.#setupMiniThumbnail()
         this.#setupVisibilityHandler()
+
+        this.#initialized = true
     }
 
     static #setupPlaybackControls() {
-        UI.elements.playButton.addEventListener("click", () => this.togglePlayback())
-        UI.elements.backButton.onclick = () => this.handleBackButton()
-        UI.elements.forwardButton.onclick = () => this.handleForwardButton()
+        Footer.elements.playButton.addEventListener("click", () => this.togglePlayback())
+        Footer.elements.backButton.onclick = () => this.handleBackButton()
+        Footer.elements.forwardButton.onclick = () => this.handleForwardButton()
     }
 
     static #setupSeekBarControls() {
-        UI.elements.seekBar.addEventListener("input", () => {
+        Footer.elements.seekBar.addEventListener("input", () => {
             if (!Sound.isReady()) return
-            Sound.audio.currentTime = +UI.elements.seekBar.value
+            Sound.audio.currentTime = +Footer.elements.seekBar.value
         })
     }
 
     static #setupVolumeControls() {
-        UI.elements.volumeControl.addEventListener("input", (e) => {
-            localStorage.setItem("volume", "" + (e.target as HTMLInputElement).value)
-            AudioController.updateVolume()
+        Footer.elements.volumeControl.addEventListener("input", (e) => {
+            LocalStorage.volume = +(e.target as HTMLInputElement).value
+            SoundController.updateVolume()
         })
     }
 
     static #setupLoopAndShuffleControls() {
-        UI.elements.loopButton.addEventListener("click", () => {
+        Footer.elements.loopButton.addEventListener("click", () => {
             PlayerState.loopMode = (PlayerState.loopMode + 1) % 3
 
-            localStorage.setItem("loopMode", "" + PlayerState.loopMode)
+            LocalStorage.loopMode = PlayerState.loopMode
 
-            UI.updateLoopButtonUI()
+            Footer.updateLoopButtonUI()
 
             if (Sound.isReady()) {
                 Sound.audio.loop = PlayerState.loopMode === 2
             }
         })
 
-        UI.elements.shuffleButton.addEventListener("click", () => {
+        Footer.elements.shuffleButton.addEventListener("click", () => {
             PlayerState.shuffleMode = 1 - PlayerState.shuffleMode
-            localStorage.setItem("shuffleMode", "" + PlayerState.shuffleMode)
-            UI.updateShuffleButtonUI()
+
+            LocalStorage.shuffleMode = PlayerState.shuffleMode
+
+            Footer.updateShuffleButtonUI()
 
             if (PlayerState.shuffleMode === 1) {
                 PlaylistManager.shufflePlaylist({
@@ -67,10 +76,11 @@ export class EventHandlers {
     }
 
     static #setupTitle() {
-        Path.title.addEventListener("click", (e) => {
+        Header.title.addEventListener("click", (e) => {
             e.preventDefault()
 
             history.pushState(null, "", window.location.origin + window.location.pathname)
+
             handleQueryChange()
         })
     }
@@ -85,8 +95,8 @@ export class EventHandlers {
     }
 
     static #setupMiniThumbnail() {
-        UI.elements.musicTitle.addEventListener("click", () => {
-            if (PlayerState.currentTrackIndex == 0) {
+        Footer.elements.musicTitle.addEventListener("click", () => {
+            if (PlayerState.currentTrackIndex === 0) {
                 window.scrollTo({ top: 0, behavior: "smooth" })
             } else {
                 const track = document.querySelectorAll(".track")[PlayerState.currentTrackIndex - 1]
@@ -103,10 +113,10 @@ export class EventHandlers {
 
         if (Sound.audio.paused) {
             Sound.audio.play()
-            UI.updatePlayButtonUI(true)
+            Footer.updatePlayButtonUI(true)
         } else {
             Sound.audio.pause()
-            UI.updatePlayButtonUI(false)
+            Footer.updatePlayButtonUI(false)
         }
     }
 
@@ -125,19 +135,18 @@ export class EventHandlers {
     }
 
     static async changeTrack(track: Track, index: number) {
-        UI.removeNowPlayingTrack()
+        Footer.removeNowPlayingTrack()
 
-        await AudioController.initializeAudio(track)
+        await SoundController.initializeAudio(track)
 
         if (!Sound.isReady()) return
 
-        UI.updateTrackInfo(track)
-        UI.updatePlayButtonUI(true)
-        UI.updateSeekBarMax(Sound.audio.duration)
-        UI.updateDurationUI(formatTime(Sound.audio.duration))
-
-        UI.setNowPlayingTrack({
-            index: index,
+        Footer.updateTrackInfo(track)
+        Footer.updatePlayButtonUI(true)
+        Footer.updateSeekBarMax(Sound.audio.duration)
+        Footer.updateDurationUI(formatTime(Sound.audio.duration))
+        Footer.setNowPlayingTrack({
+            index,
         })
 
         setNavigationMenu(track)
@@ -145,7 +154,7 @@ export class EventHandlers {
         PlayerState.currentTrackIndex = index
         Sound.audio.play()
 
-        this.#setupTrackEndedHandler()
+        this.#setupTrackEndedHandler(Sound.audio)
 
         safeSendPlayCount(PlaylistManager.getCurrentTrackTitle())
     }
@@ -167,18 +176,18 @@ export class EventHandlers {
         await this.changeTrack(track, index)
     }
 
-    static #setupTrackEndedHandler() {
-        if (!Sound.isReady()) return
-
-        Sound.audio.onended = async () => {
+    static #setupTrackEndedHandler(audio: HTMLAudioElement) {
+        audio.onended = () => {
             if (PlayerState.loopMode === 1) {
                 this.playNextTrack()
+                //
             } else if (PlayerState.loopMode === 0) {
                 const { track, index } = PlaylistManager.getNextTrack()
+
                 if (index !== 0) {
-                    await this.changeTrack(track, index)
+                    this.changeTrack(track, index)
                 } else {
-                    UI.updatePlayButtonUI(false)
+                    Footer.updatePlayButtonUI(false)
                 }
             }
         }
