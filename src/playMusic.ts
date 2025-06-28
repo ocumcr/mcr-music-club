@@ -3,27 +3,24 @@ import { PlayerState } from "./PlayerState.js"
 import { PlaylistManager } from "./PlaylistManager.js"
 import { Sound } from "./Sound.js"
 import { sendPlayCount } from "./survey.js"
-import { Header, TrackElement, Footer } from "./UI.js"
+import { Header, Content } from "./UI.js"
+
+let playCounted = false
 
 export const safeSendPlayCount = (title: string) => {
-    if (!PlayerState.playCounted) {
+    if (!playCounted) {
         sendPlayCount(title)
 
-        PlayerState.playCounted = true
+        playCounted = true
 
         setTimeout(() => {
-            PlayerState.playCounted = false
+            playCounted = false
         }, 1000)
     }
 }
 
-export const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = Math.floor(seconds % 60)
-    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`
-}
-
-export const onClickTag = (tag: number) => {
+// onClickTag をグローバル空間に公開
+;(window as any).onClickTag = (tag: number) => {
     const url = new URL(location.href)
     url.searchParams.set("search", "" + tag)
     history.pushState(null, "", url.href)
@@ -122,20 +119,18 @@ export function handleQueryChange() {
 
     if (search) {
         data = PlayerState.data.filter(
-            (m) => m.tags.includes(search) || m.title.includes(search) || m.author === search,
+            (track) => track.tags.includes(search) || track.title.includes(search) || track.author === search,
         )
         Header.setSearchBox(search)
     }
 
-    if (url.searchParams.get("debug") == "true") {
+    if (url.searchParams.get("debug") === "true") {
         console.log("開けゴマ!")
         Header.debugLog.style.display = "block"
     }
 
     PlaylistManager.setPlaylist(data)
-    TrackElement.renderMusicList(PlayerState.playlist)
-
-    Footer.setPlayCount()
+    Content.renderMusicList(PlaylistManager.playlist)
 }
 
 // 履歴変更検知用のイベントリスナー

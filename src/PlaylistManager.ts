@@ -1,53 +1,57 @@
 import { PlayerState } from "./PlayerState.js"
-import { TrackElement, Footer } from "./UI.js"
+import { Content, Footer } from "./UI.js"
 
 // プレイリスト管理のクラス
 export class PlaylistManager {
-    static setPlaylist(playlist: Track[]) {
-        PlayerState.defaultOrderPlaylist = playlist
-        PlayerState.playlist = PlayerState.shuffleMode ? this.#shuffleArray(playlist) : playlist
+    static playlist: Readonly<Track[]>
+    static defaultOrderPlaylist: Readonly<Track[]>
+
+    static setPlaylist(playlist: readonly Track[]) {
+        this.defaultOrderPlaylist = playlist
+        this.playlist = PlayerState.shuffleMode ? this.#shuffleArray([...playlist]) : playlist
     }
 
-    static setOrder() {
-        const currentTrack = PlayerState.playlist[PlayerState.currentTrackIndex]
+    static setDefaultOrder() {
+        const currentTrack = this.playlist[PlayerState.currentTrackIndex]
 
-        PlayerState.currentTrackIndex = PlayerState.defaultOrderPlaylist.indexOf(currentTrack)
+        PlayerState.currentTrackIndex = this.defaultOrderPlaylist.indexOf(currentTrack)
 
-        PlayerState.playlist = [...PlayerState.defaultOrderPlaylist]
-        TrackElement.renderMusicList(PlayerState.playlist)
-        Footer.setPlayCount()
+        this.playlist = [...this.defaultOrderPlaylist]
 
+        Content.renderMusicList(this.playlist)
+        Content.scrollTo(PlayerState.currentTrackIndex - 1)
         Footer.setNowPlayingTrack({ index: PlayerState.currentTrackIndex })
-
-        if (PlayerState.currentTrackIndex == 0) {
-            window.scrollTo({ top: 0, behavior: "smooth" })
-        } else {
-            const track = document.querySelectorAll(".track")[PlayerState.currentTrackIndex - 1]
-
-            track.scrollIntoView({
-                behavior: "smooth",
-            })
-        }
     }
 
     static shufflePlaylist({ moveCurrentTrackToTop }: { moveCurrentTrackToTop: boolean }) {
-        const currentTrack = PlayerState.playlist[PlayerState.currentTrackIndex]
+        const currentTrack = this.playlist[PlayerState.currentTrackIndex]
 
         // 今再生しているトラックを一番目に持ってくる
         do {
-            PlayerState.playlist = this.#shuffleArray(PlayerState.playlist)
-        } while (moveCurrentTrackToTop && PlayerState.playlist[0] != currentTrack)
+            this.playlist = this.#shuffleArray([...this.playlist])
+        } while (moveCurrentTrackToTop && this.playlist[0] != currentTrack)
 
         if (moveCurrentTrackToTop) {
             PlayerState.currentTrackIndex = 0
         }
 
-        TrackElement.renderMusicList(PlayerState.playlist)
-        Footer.setPlayCount()
-
+        Content.renderMusicList(this.playlist)
+        Content.scrollTo(-1)
         Footer.setNowPlayingTrack({ index: PlayerState.currentTrackIndex })
+    }
 
-        window.scrollTo({ top: 0, behavior: "smooth" })
+    static getCurrentTrackTitle() {
+        return this.playlist[PlayerState.currentTrackIndex].title
+    }
+
+    static getNextTrack() {
+        const nextIndex = (PlayerState.currentTrackIndex + 1) % this.playlist.length
+        return { track: this.playlist[nextIndex], index: nextIndex }
+    }
+
+    static getPreviousTrack() {
+        const prevIndex = (PlayerState.currentTrackIndex - 1 + this.playlist.length) % this.playlist.length
+        return { track: this.playlist[prevIndex], index: prevIndex }
     }
 
     static #shuffleArray(array: any[]) {
@@ -58,20 +62,5 @@ export class PlaylistManager {
             ;[arr[idx], arr[rand]] = [arr[rand], cur]
             return arr
         })
-    }
-
-    static getCurrentTrackTitle() {
-        return PlayerState.playlist[PlayerState.currentTrackIndex].title
-    }
-
-    static getNextTrack() {
-        const nextIndex = (PlayerState.currentTrackIndex + 1) % PlayerState.playlist.length
-        return { track: PlayerState.playlist[nextIndex], index: nextIndex }
-    }
-
-    static getPreviousTrack() {
-        const prevIndex =
-            (PlayerState.currentTrackIndex - 1 + PlayerState.playlist.length) % PlayerState.playlist.length
-        return { track: PlayerState.playlist[prevIndex], index: prevIndex }
     }
 }

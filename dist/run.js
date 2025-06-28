@@ -1,4 +1,4 @@
-import { Header, Footer } from "./UI.js";
+import { Header, Footer, Content } from "./UI.js";
 import { EventHandlers } from "./EventHandler.js";
 import { PlayerState } from "./PlayerState.js";
 import { handleQueryChange, setupNavigationMenu } from "./playMusic.js";
@@ -10,11 +10,10 @@ async function initializeApp() {
     Header.init();
     EventHandlers.init();
     const response = await fetch("music-data.json");
-    PlayerState.data = await response.json();
-    console.log({ ...PlayerState });
+    PlayerState.data = Object.freeze(await response.json());
     // 初期ロード時のクエリ処理
     handleQueryChange();
     setupNavigationMenu();
-    PlayerState.record = await fetchPlayCountData();
-    Footer.setPlayCount();
+    PlayerState.playCountRecord = Object.freeze(await fetchPlayCountData());
+    Content.setPlayCount();
 }

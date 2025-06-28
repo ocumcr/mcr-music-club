@@ -1,9 +1,9 @@
 import { SoundController } from "./SoundController.js"
-import { PlayerState } from "./PlayerState.js"
+import { LoopMode, PlayerState, ShuffleMode } from "./PlayerState.js"
 import { PlaylistManager } from "./PlaylistManager.js"
-import { formatTime, handleQueryChange, safeSendPlayCount, setNavigationMenu } from "./playMusic.js"
+import { handleQueryChange, safeSendPlayCount, setNavigationMenu } from "./playMusic.js"
 import { Sound } from "./Sound.js"
-import { Header, Footer } from "./UI.js"
+import { Header, Footer, Content } from "./UI.js"
 import { LocalStorage } from "./LocalStorage.js"
 
 // イベントハンドラの設定
@@ -16,7 +16,8 @@ export class EventHandlers {
         this.#setupPlaybackControls()
         this.#setupSeekBarControls()
         this.#setupVolumeControls()
-        this.#setupLoopAndShuffleControls()
+        this.#setupLoopControls()
+        this.#setupShuffleControls()
         this.#setupKeyboardControls()
         this.#setupTitle()
         this.#setupMiniThumbnail()
@@ -33,8 +34,7 @@ export class EventHandlers {
 
     static #setupSeekBarControls() {
         Footer.elements.seekBar.addEventListener("input", () => {
-            if (!Sound.isReady()) return
-            Sound.audio.currentTime = +Footer.elements.seekBar.value
+            SoundController.setCurrentTime(+Footer.elements.seekBar.value)
         })
     }
 
@@ -45,32 +45,34 @@ export class EventHandlers {
         })
     }
 
-    static #setupLoopAndShuffleControls() {
+    static #setupLoopControls() {
         Footer.elements.loopButton.addEventListener("click", () => {
-            PlayerState.loopMode = (PlayerState.loopMode + 1) % 3
+            PlayerState.loopMode = ((PlayerState.loopMode + 1) % 3) as LoopMode
 
             LocalStorage.loopMode = PlayerState.loopMode
 
-            Footer.updateLoopButtonUI()
+            Footer.updateLoopButtonUI(PlayerState.loopMode)
 
             if (Sound.isReady()) {
                 Sound.audio.loop = PlayerState.loopMode === 2
             }
         })
+    }
 
+    static #setupShuffleControls() {
         Footer.elements.shuffleButton.addEventListener("click", () => {
-            PlayerState.shuffleMode = 1 - PlayerState.shuffleMode
+            PlayerState.shuffleMode = (1 - PlayerState.shuffleMode) as ShuffleMode
 
             LocalStorage.shuffleMode = PlayerState.shuffleMode
 
-            Footer.updateShuffleButtonUI()
+            Footer.updateShuffleButtonUI(PlayerState.shuffleMode)
 
             if (PlayerState.shuffleMode === 1) {
                 PlaylistManager.shufflePlaylist({
                     moveCurrentTrackToTop: true,
                 })
             } else {
-                PlaylistManager.setOrder()
+                PlaylistManager.setDefaultOrder()
             }
         })
     }
@@ -96,15 +98,7 @@ export class EventHandlers {
 
     static #setupMiniThumbnail() {
         Footer.elements.musicTitle.addEventListener("click", () => {
-            if (PlayerState.currentTrackIndex === 0) {
-                window.scrollTo({ top: 0, behavior: "smooth" })
-            } else {
-                const track = document.querySelectorAll(".track")[PlayerState.currentTrackIndex - 1]
-
-                track.scrollIntoView({
-                    behavior: "smooth",
-                })
-            }
+            Content.scrollTo(PlayerState.currentTrackIndex - 1)
         })
     }
 
@@ -121,7 +115,7 @@ export class EventHandlers {
     }
 
     static async handleBackButton() {
-        if (Sound.audio && Sound.audio.currentTime > 0.5) {
+        if (Sound.isReady() && Sound.audio.currentTime > 0.5) {
             Sound.audio.currentTime = 0
             return
         }
@@ -137,14 +131,14 @@ export class EventHandlers {
     static async changeTrack(track: Track, index: number) {
         Footer.removeNowPlayingTrack()
 
-        await SoundController.initializeAudio(track)
+        await SoundController.loadTrack(track)
 
         if (!Sound.isReady()) return
 
         Footer.updateTrackInfo(track)
         Footer.updatePlayButtonUI(true)
         Footer.updateSeekBarMax(Sound.audio.duration)
-        Footer.updateDurationUI(formatTime(Sound.audio.duration))
+        Footer.updateDurationUI(Sound.audio.duration)
         Footer.setNowPlayingTrack({
             index,
         })
@@ -160,13 +154,13 @@ export class EventHandlers {
     }
 
     static async playNextTrack() {
-        const isLastTrack = PlayerState.playlist.length - 1 == PlayerState.currentTrackIndex
+        const isLastTrack = PlaylistManager.playlist.length - 1 === PlayerState.currentTrackIndex
 
         if (isLastTrack) {
-            window.scrollTo({ top: 0, behavior: "smooth" })
+            Content.scrollTo(-1)
         }
 
-        if (isLastTrack && PlayerState.shuffleMode == 1) {
+        if (isLastTrack && PlayerState.shuffleMode === 1) {
             PlaylistManager.shufflePlaylist({
                 moveCurrentTrackToTop: false,
             })

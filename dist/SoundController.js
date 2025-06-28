@@ -5,12 +5,17 @@ import { Sound } from "./Sound.js";
 import { Footer } from "./UI.js";
 // Soundを使うクラス
 export class SoundController {
-    static async initializeAudio(track) {
+    static async loadTrack(track) {
         await Sound.load(track.path, PlayerState.loopMode === 2);
         if (!Sound.isReady())
             return;
         this.#setupSeekBarUpdate(Sound.audio);
         this.updateVolume();
+    }
+    static setCurrentTime(second) {
+        if (!Sound.isReady())
+            return;
+        Sound.audio.currentTime = second;
     }
     static #setupSeekBarUpdate(audio) {
         // 再生中にシークバーを更新

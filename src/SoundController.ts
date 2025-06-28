@@ -6,7 +6,7 @@ import { Footer } from "./UI.js"
 
 // Soundを使うクラス
 export class SoundController {
-    static async initializeAudio(track: Track) {
+    static async loadTrack(track: Track) {
         await Sound.load(track.path, PlayerState.loopMode === 2)
 
         if (!Sound.isReady()) return
@@ -14,6 +14,11 @@ export class SoundController {
         this.#setupSeekBarUpdate(Sound.audio)
 
         this.updateVolume()
+    }
+
+    static setCurrentTime(second: number) {
+        if (!Sound.isReady()) return
+        Sound.audio.currentTime = second
     }
 
     static #setupSeekBarUpdate(audio: HTMLAudioElement) {

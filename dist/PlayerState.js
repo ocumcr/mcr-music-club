@@ -1,13 +1,10 @@
 import { LocalStorage } from "./LocalStorage.js";
 // グローバル状態の管理
 export class PlayerState {
+    // 元データ
     static data = [];
-    static record = {};
-    static wasPlaying = false;
-    static playCounted = false;
+    static playCountRecord = {};
     static loopMode = LocalStorage.loopMode;
     static shuffleMode = LocalStorage.shuffleMode;
     static currentTrackIndex = 0;
-    static playlist = [];
-    static defaultOrderPlaylist = [];
 }

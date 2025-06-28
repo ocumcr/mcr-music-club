@@ -2,17 +2,17 @@ import { LocalStorage } from "./LocalStorage.js"
 
 // グローバル状態の管理
 export class PlayerState {
-    static data: Track[] = []
-    static record: {
+    // 元データ
+    static data: Readonly<Track[]> = []
+    static playCountRecord: Readonly<{
         [k: string]: number
-    } = {}
-    static wasPlaying = false
+    }> = {}
 
-    static playCounted = false
-    static loopMode = LocalStorage.loopMode
-    static shuffleMode = LocalStorage.shuffleMode
+    static loopMode: LoopMode = LocalStorage.loopMode
+    static shuffleMode: ShuffleMode = LocalStorage.shuffleMode
+
     static currentTrackIndex = 0
-
-    static playlist: Track[] = []
-    static defaultOrderPlaylist: Track[] = []
 }
+
+export type LoopMode = 0 | 1 | 2
+export type ShuffleMode = 0 | 1

@@ -1,7 +1,7 @@
 import { EventHandlers } from "./EventHandler.js";
 import { LocalStorage } from "./LocalStorage.js";
 import { PlayerState } from "./PlayerState.js";
-import { formatTime } from "./playMusic.js";
+import { PlaylistManager } from "./PlaylistManager.js";
 // UIコントロール要素の参照
 export class Footer {
     static elements;
@@ -20,23 +20,23 @@ export class Footer {
             forwardButton: document.getElementById("forward-button"),
         };
         this.#initializeVolume();
-        this.updateLoopButtonUI();
-        this.updateShuffleButtonUI();
+        this.updateLoopButtonUI(0);
+        this.updateShuffleButtonUI(0);
     }
     static #initializeVolume() {
         this.elements.volumeControl.value = "" + LocalStorage.volume;
     }
-    static updateLoopButtonUI() {
+    static updateLoopButtonUI(loopMode) {
         const loopStates = ["loop-none", "", "loop-one"];
         const loopTitles = ["ループしない", "ループする", "一曲ループ"];
         this.elements.loopButton.innerHTML = `
-            <i class="fa-solid fa-repeat ${loopStates[PlayerState.loopMode]}"></i>
+            <i class="fa-solid fa-repeat ${loopStates[loopMode]}"></i>
         `;
-        this.elements.loopButton.title = loopTitles[PlayerState.loopMode];
+        this.elements.loopButton.title = loopTitles[loopMode];
     }
-    static updateShuffleButtonUI() {
+    static updateShuffleButtonUI(shuffleMode) {
         this.elements.shuffleButton.innerHTML = `
-            <i class="fa-solid fa-shuffle ${["shuffle-off", ""][PlayerState.shuffleMode]}"></i>
+            <i class="fa-solid fa-shuffle ${["shuffle-off", ""][shuffleMode]}"></i>
         `;
     }
     static updatePlayButtonUI(isPlaying) {
@@ -49,23 +49,15 @@ export class Footer {
         this.elements.miniThumbnail.style.backgroundImage = `url(${track.thumbnail})`;
         this.elements.miniThumbnail.style.backgroundSize = "cover";
     }
-    static updateDurationUI(formattedTime) {
-        this.elements.durationEl.innerText = formattedTime;
+    static updateDurationUI(time) {
+        this.elements.durationEl.innerText = this.#formatTime(time);
     }
     static updateSeekBarMax(max) {
         this.elements.seekBar.max = String(max);
     }
     static updateSeekBarAndCurrentTimeUI(time) {
-        this.elements.currentTimeEl.innerText = formatTime(time);
+        this.elements.currentTimeEl.innerText = this.#formatTime(time);
         this.elements.seekBar.value = String(time);
-    }
-    static setPlayCount() {
-        const list = document.querySelectorAll(".play-count");
-        if (!PlayerState.record)
-            return;
-        PlayerState.playlist.forEach((obj, i) => {
-            list[i].innerText = "再生回数: " + (PlayerState.record[obj.title] ?? 0);
-        });
     }
     static removeNowPlayingTrack() {
         const nowPlayingTrack = document.querySelector(".playing");
@@ -78,6 +70,11 @@ export class Footer {
         if (tracks[index]) {
             tracks[index].classList.add("playing");
         }
+    }
+    static #formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
     }
 }
 export class Header {
@@ -93,10 +90,24 @@ export class Header {
         this.#search.value = text;
     }
 }
-export class TrackElement {
+export class Content {
+    static scrollTo(index) {
+        if (index === -1) {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+            });
+        }
+        else {
+            const track = document.querySelectorAll(".track")[index];
+            track.scrollIntoView({
+                behavior: "smooth",
+            });
+        }
+    }
     static renderMusicList(data) {
         const ol = document.querySelector(".musics");
-        const createTrackElement = (track, index) => `
+        const createTrackElement = (track) => `
             <li class="track">
                 <div class="img-box" style="
                     background: url(${track.thumbnail});
@@ -124,6 +135,15 @@ export class TrackElement {
             box.addEventListener("click", async () => {
                 await EventHandlers.changeTrack(data[index], index);
             });
+        });
+        this.setPlayCount();
+    }
+    static setPlayCount() {
+        const list = document.querySelectorAll(".play-count");
+        if (!PlayerState.playCountRecord)
+            return;
+        PlaylistManager.playlist.forEach((obj, i) => {
+            list[i].innerText = "再生回数: " + (PlayerState.playCountRecord[obj.title] ?? 0);
         });
     }
 }
