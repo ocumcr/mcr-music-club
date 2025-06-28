@@ -74,7 +74,7 @@ export const setupNavigationMenu = () => {
 const addLog = (text) => {
     console.log(text);
     // document.getElementById("debug-log").innerHTML += navigator.mediaSession.playbackState + "<br />"
-    Header.debugLog.innerHTML += text + "<br />";
+    Content.debugLog.innerHTML += text + "<br />";
 };
 // export const getMobileOS = () => {
 //     const ua = navigator.userAgent
@@ -88,19 +88,21 @@ const addLog = (text) => {
 // クエリ変更時に呼び出される関数
 export function handleQueryChange() {
     console.log("クエリパラメータが変更されました: ");
+    const title = PlaylistManager.getCurrentTrackTitle();
+    Header.setSearchBox("");
     const url = new URL(location.href);
     const search = url.searchParams.get("search");
     let data = PlayerState.data;
-    Header.setSearchBox("");
     if (search) {
         data = PlayerState.data.filter((track) => track.tags.includes(search) || track.title.includes(search) || track.author === search);
         Header.setSearchBox(search);
     }
     if (url.searchParams.get("debug") === "true") {
         console.log("開けゴマ!");
-        Header.debugLog.style.display = "block";
+        Content.debugLog.style.display = "block";
     }
     PlaylistManager.setPlaylist(data);
+    PlaylistManager.currentTrackIndex = PlaylistManager.playlist.findIndex((track) => track.title === title);
     Content.renderMusicList(PlaylistManager.playlist);
 }
 // 履歴変更検知用のイベントリスナー

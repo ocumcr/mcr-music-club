@@ -98,7 +98,8 @@ export class EventHandlers {
 
     static #setupMiniThumbnail() {
         Footer.elements.musicTitle.addEventListener("click", () => {
-            Content.scrollTo(PlayerState.currentTrackIndex - 1)
+            if (!PlaylistManager.isPlayed()) throw Error("")
+            Content.scrollTo(PlaylistManager.currentTrackIndex - 1)
         })
     }
 
@@ -129,7 +130,7 @@ export class EventHandlers {
     }
 
     static async changeTrack(track: Track, index: number) {
-        Footer.removeNowPlayingTrack()
+        Content.removeNowPlayingTrack()
 
         await SoundController.loadTrack(track)
 
@@ -139,22 +140,23 @@ export class EventHandlers {
         Footer.updatePlayButtonUI(true)
         Footer.updateSeekBarMax(Sound.audio.duration)
         Footer.updateDurationUI(Sound.audio.duration)
-        Footer.setNowPlayingTrack({
+        Content.setNowPlayingTrack({
             index,
         })
 
         setNavigationMenu(track)
 
-        PlayerState.currentTrackIndex = index
+        PlaylistManager.currentTrackIndex = index
         Sound.audio.play()
 
         this.#setupTrackEndedHandler(Sound.audio)
 
-        safeSendPlayCount(PlaylistManager.getCurrentTrackTitle())
+        const title = PlaylistManager.getCurrentTrackTitle()
+        title && safeSendPlayCount(title)
     }
 
     static async playNextTrack() {
-        const isLastTrack = PlaylistManager.playlist.length - 1 === PlayerState.currentTrackIndex
+        const isLastTrack = PlaylistManager.playlist.length - 1 === PlaylistManager.currentTrackIndex
 
         if (isLastTrack) {
             Content.scrollTo(-1)

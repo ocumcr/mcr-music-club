@@ -1,0 +1,137 @@
+#title {
+    margin: 0 20px;
+
+    width: 360px;
+    height: 100%;
+
+    & h1 {
+        height: 100%;
+
+        font-size: 40px;
+
+        display: inline;
+
+        font-family: sans-serif;
+
+        display: flex;
+        align-items: center;
+
+        padding-bottom: 8px;
+    }
+}
+
+.header {
+    position: fixed;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    width: 100%;
+    height: 68px;
+    left: 0;
+    top: 0;
+
+    padding: 0;
+
+    background-color: #111;
+    color: azure;
+    font-size: 24px;
+
+    user-select: none;
+
+    z-index: 1000;
+}
+
+.header::before,
+.footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("../assets/noise3.png");
+    background-repeat: repeat;
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+.header a {
+    color: whitesmoke;
+    text-decoration: none;
+
+    &:hover {
+        color: #c0c0c0;
+    }
+}
+
+.nav {
+    display: flex;
+    height: 100%;
+    width: 360px;
+    margin: 0 20px;
+    align-items: center;
+    justify-content: space-evenly;
+
+    & a {
+        color: whitesmoke;
+        text-decoration: none;
+
+        font-size: 24px;
+
+        &:hover {
+            color: #c0c0c0;
+        }
+    }
+}
+
+.hidden-twitter {
+    display: none;
+}
+
+.search {
+    margin-right: 20px;
+
+    width: 40%;
+    height: 100%;
+    padding: 8px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    gap: 8px;
+
+    & input[type="submit"] {
+        height: 95%;
+        background-color: #f0f0f0;
+        color: #111;
+
+        border-radius: 5px;
+        border: none;
+
+        padding: 8px;
+
+        &:hover {
+            background-color: #c0c0c0;
+        }
+    }
+
+    & .search-box {
+        width: 100%;
+        height: 95%;
+
+        padding: 0 10px;
+        border-radius: 5px;
+        border: none;
+
+        background-color: #f0f0f0;
+        color: #111;
+
+        &:focus {
+            outline: none;
+            box-shadow: inset 0 0 5px #808080;
+        }
+    }
+}

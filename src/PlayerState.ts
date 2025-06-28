@@ -10,8 +10,6 @@ export class PlayerState {
 
     static loopMode: LoopMode = LocalStorage.loopMode
     static shuffleMode: ShuffleMode = LocalStorage.shuffleMode
-
-    static currentTrackIndex = 0
 }
 
 export type LoopMode = 0 | 1 | 2

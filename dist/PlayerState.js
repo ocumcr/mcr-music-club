@@ -6,5 +6,4 @@ export class PlayerState {
     static playCountRecord = {};
     static loopMode = LocalStorage.loopMode;
     static shuffleMode = LocalStorage.shuffleMode;
-    static currentTrackIndex = 0;
 }

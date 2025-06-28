@@ -34,7 +34,8 @@ export class SoundController {
 
             // ループ再生を検知
             if (PlayerState.loopMode == 2 && audio.duration - audio.currentTime < 0.65) {
-                safeSendPlayCount(PlaylistManager.getCurrentTrackTitle())
+                const title = PlaylistManager.getCurrentTrackTitle()
+                title && safeSendPlayCount(title)
             }
         }
     }

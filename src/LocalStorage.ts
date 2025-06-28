@@ -2,7 +2,7 @@ import { LoopMode, ShuffleMode } from "./PlayerState"
 
 export class LocalStorage {
     static set volume(volume: number) {
-        localStorage.set("volume", "" + volume)
+        localStorage.setItem("volume", "" + volume)
     }
 
     static get volume() {
@@ -10,15 +10,15 @@ export class LocalStorage {
     }
 
     static set loopMode(loopMode: LoopMode) {
-        localStorage.set("loopMode", "" + loopMode)
+        localStorage.setItem("loopMode", "" + loopMode)
     }
 
     static get loopMode(): LoopMode {
-        return (localStorage["loopMode"] ? Number(localStorage["shuffleMode"]) : 0) as LoopMode
+        return (localStorage["loopMode"] ? Number(localStorage["loopMode"]) : 0) as LoopMode
     }
 
     static set shuffleMode(loopMode: ShuffleMode) {
-        localStorage.set("shuffleMode", "" + loopMode)
+        localStorage.setItem("shuffleMode", "" + loopMode)
     }
 
     static get shuffleMode(): ShuffleMode {

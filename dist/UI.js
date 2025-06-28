@@ -20,8 +20,8 @@ export class Footer {
             forwardButton: document.getElementById("forward-button"),
         };
         this.#initializeVolume();
-        this.updateLoopButtonUI(0);
-        this.updateShuffleButtonUI(0);
+        this.updateLoopButtonUI(LocalStorage.loopMode);
+        this.updateShuffleButtonUI(LocalStorage.shuffleMode);
     }
     static #initializeVolume() {
         this.elements.volumeControl.value = "" + LocalStorage.volume;
@@ -59,18 +59,6 @@ export class Footer {
         this.elements.currentTimeEl.innerText = this.#formatTime(time);
         this.elements.seekBar.value = String(time);
     }
-    static removeNowPlayingTrack() {
-        const nowPlayingTrack = document.querySelector(".playing");
-        if (nowPlayingTrack) {
-            nowPlayingTrack.classList.remove("playing");
-        }
-    }
-    static setNowPlayingTrack({ index }) {
-        const tracks = document.querySelectorAll(".track h3");
-        if (tracks[index]) {
-            tracks[index].classList.add("playing");
-        }
-    }
     static #formatTime(seconds) {
         const mins = Math.floor(seconds / 60);
         const secs = Math.floor(seconds % 60);
@@ -79,11 +67,9 @@ export class Footer {
 }
 export class Header {
     static title;
-    static debugLog;
     static #search;
     static init() {
         this.title = document.getElementById("title");
-        this.debugLog = document.getElementById("debug-log");
         this.#search = document.getElementById("search");
     }
     static setSearchBox(text) {
@@ -91,8 +77,12 @@ export class Header {
     }
 }
 export class Content {
+    static debugLog;
+    static init() {
+        this.debugLog = document.getElementById("debug-log");
+    }
     static scrollTo(index) {
-        if (index === -1) {
+        if (index <= -1) {
             window.scrollTo({
                 top: 0,
                 behavior: "smooth",
@@ -112,7 +102,10 @@ export class Content {
                 <div class="img-box" style="
                     background: url(${track.thumbnail});
                     background-size: cover;
-                "></div>
+                ">
+                    <i class="fa-solid fa-circle-play"></i>
+                    <i class="fa-solid fa-circle-pause"></i>
+                </div>
                 <div class="description">
                     <h3>${track.title}</h3>
                     <p>${track.year}</p>
@@ -137,6 +130,9 @@ export class Content {
             });
         });
         this.setPlayCount();
+        if (!PlaylistManager.isPlayed())
+            return;
+        this.setNowPlayingTrack({ index: PlaylistManager.currentTrackIndex });
     }
     static setPlayCount() {
         const list = document.querySelectorAll(".play-count");
@@ -145,5 +141,17 @@ export class Content {
         PlaylistManager.playlist.forEach((obj, i) => {
             list[i].innerText = "再生回数: " + (PlayerState.playCountRecord[obj.title] ?? 0);
         });
+    }
+    static removeNowPlayingTrack() {
+        const nowPlayingTrack = document.querySelector(".playing");
+        if (nowPlayingTrack) {
+            nowPlayingTrack.classList.remove("playing");
+        }
+    }
+    static setNowPlayingTrack({ index }) {
+        const tracks = document.querySelectorAll(".track");
+        if (tracks[index]) {
+            tracks[index].classList.add("playing");
+        }
     }
 }

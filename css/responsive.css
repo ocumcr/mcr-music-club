@@ -1,0 +1,96 @@
+@media (max-width: 1200px) {
+    .hidden-twitter {
+        display: block;
+        margin: 0 20px;
+    }
+
+    .music-thumbnail {
+        display: none;
+    }
+
+    .nav {
+        display: none;
+    }
+
+    .search {
+        width: 100%;
+        margin: 0;
+    }
+
+    .search-box {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .content .track .img-box {
+        width: 96px;
+    }
+
+    .content .track .img-box i {
+        font-size: 48px;
+    }
+
+    .tag-button {
+        padding: 5px 10px;
+
+        font-size: 12px;
+    }
+
+    p,
+    h3 {
+        font-size: 16px;
+    }
+
+    .footer {
+        justify-content: left;
+    }
+
+    .time-count {
+        display: none;
+    }
+
+    .play-count {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 530px) {
+    #title {
+        width: fit-content;
+    }
+
+    .hidden-twitter {
+        margin: 0 10px;
+    }
+
+    #title h1 {
+        font-size: 24px;
+        padding-bottom: 4px;
+    }
+
+    .content {
+        margin-top: 40px;
+        margin-bottom: 40px;
+    }
+
+    .header {
+        height: 40px;
+
+        & .search {
+            padding: 4px;
+        }
+    }
+
+    .volume-control {
+        display: none;
+    }
+
+    .search input[type="submit"] {
+        display: none;
+    }
+
+    .play-count {
+        display: none;
+    }
+}

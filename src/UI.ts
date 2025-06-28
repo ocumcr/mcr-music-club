@@ -35,8 +35,8 @@ export class Footer {
         }
 
         this.#initializeVolume()
-        this.updateLoopButtonUI(0)
-        this.updateShuffleButtonUI(0)
+        this.updateLoopButtonUI(LocalStorage.loopMode)
+        this.updateShuffleButtonUI(LocalStorage.shuffleMode)
     }
 
     static #initializeVolume() {
@@ -84,20 +84,6 @@ export class Footer {
         this.elements.seekBar.value = String(time)
     }
 
-    static removeNowPlayingTrack() {
-        const nowPlayingTrack = document.querySelector(".playing")
-        if (nowPlayingTrack) {
-            nowPlayingTrack.classList.remove("playing")
-        }
-    }
-
-    static setNowPlayingTrack({ index }: { index: number }) {
-        const tracks = document.querySelectorAll<HTMLHeadingElement>(".track h3")
-        if (tracks[index]) {
-            tracks[index].classList.add("playing")
-        }
-    }
-
     static #formatTime(seconds: number) {
         const mins = Math.floor(seconds / 60)
         const secs = Math.floor(seconds % 60)
@@ -107,12 +93,10 @@ export class Footer {
 
 export class Header {
     static title: HTMLElement
-    static debugLog: HTMLElement
     static #search: HTMLInputElement
 
     static init() {
         this.title = document.getElementById("title")!
-        this.debugLog = document.getElementById("debug-log")!
         this.#search = document.getElementById("search") as HTMLInputElement
     }
 
@@ -122,8 +106,14 @@ export class Header {
 }
 
 export class Content {
+    static debugLog: HTMLElement
+
+    static init() {
+        this.debugLog = document.getElementById("debug-log")!
+    }
+
     static scrollTo(index: number) {
-        if (index === -1) {
+        if (index <= -1) {
             window.scrollTo({
                 top: 0,
                 behavior: "smooth",
@@ -145,7 +135,10 @@ export class Content {
                 <div class="img-box" style="
                     background: url(${track.thumbnail});
                     background-size: cover;
-                "></div>
+                ">
+                    <i class="fa-solid fa-circle-play"></i>
+                    <i class="fa-solid fa-circle-pause"></i>
+                </div>
                 <div class="description">
                     <h3>${track.title}</h3>
                     <p>${track.year}</p>
@@ -175,6 +168,9 @@ export class Content {
         })
 
         this.setPlayCount()
+
+        if (!PlaylistManager.isPlayed()) return
+        this.setNowPlayingTrack({ index: PlaylistManager.currentTrackIndex })
     }
 
     static setPlayCount() {
@@ -185,5 +181,19 @@ export class Content {
         PlaylistManager.playlist.forEach((obj, i) => {
             list[i].innerText = "再生回数: " + (PlayerState.playCountRecord[obj.title] ?? 0)
         })
+    }
+
+    static removeNowPlayingTrack() {
+        const nowPlayingTrack = document.querySelector(".playing")
+        if (nowPlayingTrack) {
+            nowPlayingTrack.classList.remove("playing")
+        }
+    }
+
+    static setNowPlayingTrack({ index }: { index: number }) {
+        const tracks = document.querySelectorAll<HTMLHeadingElement>(".track")
+        if (tracks[index]) {
+            tracks[index].classList.add("playing")
+        }
     }
 }

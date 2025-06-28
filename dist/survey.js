@@ -1,6 +1,5 @@
 // 再生回数を送る
 export const sendPlayCount = async (title) => {
-    return;
     try {
         const response = await fetch("https://script.google.com/macros/s/AKfycbya_x47m1TS70IhvejTmlMscmsGtheak2MvwYuXvVMse-Ar6UDv1EqmG_aQTSmDxRWc/exec", {
             method: "POST",
