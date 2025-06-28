@@ -78,8 +78,10 @@ export class Header {
 }
 export class Content {
     static debugLog;
+    static content;
     static init() {
         this.debugLog = document.getElementById("debug-log");
+        this.content = document.querySelector(".content");
     }
     static scrollTo(index) {
         if (index <= -1) {

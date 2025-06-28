@@ -11,6 +11,10 @@
 
     background-color: #f2f2f2;
 
+    &.fade-in {
+        animation: fade-in 0.3s ease-out;
+    }
+
     & .musics {
         width: 100%;
 
@@ -147,4 +151,15 @@
     text-align: right;
 
     overflow: hidden;
+}
+
+@keyframes fade-in {
+    from {
+        transform: translateY(10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }

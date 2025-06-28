@@ -3,7 +3,7 @@ import { LocalStorage } from "./LocalStorage.js";
 export class PlayerState {
     // 元データ
     static data = [];
-    static playCountRecord = {};
+    static playCountRecord;
     static loopMode = LocalStorage.loopMode;
     static shuffleMode = LocalStorage.shuffleMode;
 }

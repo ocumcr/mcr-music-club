@@ -6,7 +6,7 @@ export class PlayerState {
     static data: Readonly<Track[]> = []
     static playCountRecord: Readonly<{
         [k: string]: number
-    }> = {}
+    }>
 
     static loopMode: LoopMode = LocalStorage.loopMode
     static shuffleMode: ShuffleMode = LocalStorage.shuffleMode

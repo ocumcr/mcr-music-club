@@ -107,9 +107,11 @@ export class Header {
 
 export class Content {
     static debugLog: HTMLElement
+    static content: HTMLElement
 
     static init() {
         this.debugLog = document.getElementById("debug-log")!
+        this.content = document.querySelector(".content")!
     }
 
     static scrollTo(index: number) {

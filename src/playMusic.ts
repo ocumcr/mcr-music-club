@@ -8,7 +8,7 @@ import { Header, Content } from "./UI.js"
 let playCounted = false
 
 export const safeSendPlayCount = (title: string) => {
-    if (!playCounted) {
+    if (!playCounted && !location.search.includes("debug")) {
         sendPlayCount(title)
 
         playCounted = true
@@ -109,6 +109,11 @@ const addLog = (text: string) => {
 // クエリ変更時に呼び出される関数
 export function handleQueryChange() {
     console.log("クエリパラメータが変更されました: ")
+
+    Content.content.classList.remove("fade-in")
+    requestAnimationFrame(() => {
+        Content.content.classList.add("fade-in")
+    })
 
     const title = PlaylistManager.getCurrentTrackTitle()
 

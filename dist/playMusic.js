@@ -6,7 +6,7 @@ import { sendPlayCount } from "./survey.js";
 import { Header, Content } from "./UI.js";
 let playCounted = false;
 export const safeSendPlayCount = (title) => {
-    if (!playCounted) {
+    if (!playCounted && !location.search.includes("debug")) {
         sendPlayCount(title);
         playCounted = true;
         setTimeout(() => {
@@ -88,6 +88,10 @@ const addLog = (text) => {
 // クエリ変更時に呼び出される関数
 export function handleQueryChange() {
     console.log("クエリパラメータが変更されました: ");
+    Content.content.classList.remove("fade-in");
+    requestAnimationFrame(() => {
+        Content.content.classList.add("fade-in");
+    });
     const title = PlaylistManager.getCurrentTrackTitle();
     Header.setSearchBox("");
     const url = new URL(location.href);
