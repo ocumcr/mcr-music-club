@@ -1,5 +1,5 @@
 // 再生回数を送る
-const sendPlayCount = async (title) => {
+export const sendPlayCount = async (title: string) => {
     try {
         const response = await fetch(
             "https://script.google.com/macros/s/AKfycbya_x47m1TS70IhvejTmlMscmsGtheak2MvwYuXvVMse-Ar6UDv1EqmG_aQTSmDxRWc/exec",
@@ -27,7 +27,7 @@ const sendPlayCount = async (title) => {
     }
 }
 
-const fetchPlayCountData = async () => {
+export const fetchPlayCountData = async () => {
     const response = await fetch(
         "https://script.google.com/macros/s/AKfycbw-M6WdDND050H_DboJKixnDERBEYu1X24O6JthlZkohDJMKfrELuQ5YHDpbZ8N3eOh/exec",
     ) // WebアプリURLを指定

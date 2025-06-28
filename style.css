@@ -1,6 +1,6 @@
 @font-face {
     font-family: Anzu;
-    src: url("APJapanesefontT.ttf") format("truetype");
+    src: url("assets/APJapanesefontT.ttf") format("truetype");
 }
 
 body {
@@ -78,14 +78,14 @@ h3 {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url("noise3.png");
+    background-image: url("assets/noise3.png");
     background-repeat: repeat;
     opacity: 0.1;
     pointer-events: none;
 }
 
 .header a {
-    color: azure;
+    color: whitesmoke;
     text-decoration: none;
 }
 
