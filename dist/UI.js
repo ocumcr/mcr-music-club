@@ -2,6 +2,8 @@ import { EventHandlers } from "./EventHandler.js";
 import { LocalStorage } from "./LocalStorage.js";
 import { PlayerState } from "./PlayerState.js";
 import { PlaylistManager } from "./PlaylistManager.js";
+import { handleQueryChange } from "./playMusic.js";
+import { URLManager } from "./URLManager.js";
 // UIコントロール要素の参照
 export class Footer {
     static elements;
@@ -71,6 +73,13 @@ export class Header {
     static init() {
         this.title = document.getElementById("title");
         this.#search = document.getElementById("search");
+        const form = document.querySelector(".search");
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            URLManager.setSearchQuery(this.#search.value);
+            // 必要ならここで検索処理を呼び出す
+            handleQueryChange();
+        };
     }
     static setSearchBox(text) {
         this.#search.value = text;

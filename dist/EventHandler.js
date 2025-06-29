@@ -1,10 +1,12 @@
 import { SoundController } from "./SoundController.js";
 import { PlayerState } from "./PlayerState.js";
 import { PlaylistManager } from "./PlaylistManager.js";
-import { handleQueryChange, safeSendPlayCount, setNavigationMenu } from "./playMusic.js";
+import { handleQueryChange, safeSendPlayCount } from "./playMusic.js";
 import { Sound } from "./Sound.js";
 import { Header, Footer, Content } from "./UI.js";
 import { LocalStorage } from "./LocalStorage.js";
+import { URLManager } from "./URLManager.js";
+import { Navigation } from "./Navigation.js";
 // イベントハンドラの設定
 export class EventHandlers {
     static #initialized = false;
@@ -66,7 +68,7 @@ export class EventHandlers {
     static #setupTitle() {
         Header.title.addEventListener("click", (e) => {
             e.preventDefault();
-            history.pushState(null, "", window.location.origin + window.location.pathname);
+            URLManager.clearSearchQuery();
             handleQueryChange();
         });
     }
@@ -138,7 +140,7 @@ export class EventHandlers {
         Content.setNowPlayingTrack({
             index,
         });
-        setNavigationMenu(track);
+        Navigation.setNavigationMenu(track);
         PlaylistManager.currentTrackIndex = index;
         Sound.audio.play();
         this.#setupTrackEndedHandler(Sound.audio);

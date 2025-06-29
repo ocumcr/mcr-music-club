@@ -4,7 +4,7 @@
         margin: 0 20px;
     }
 
-    .music-thumbnail {
+    .volume-control {
         display: none;
     }
 
@@ -56,6 +56,10 @@
 }
 
 @media (max-width: 530px) {
+    .music-thumbnail {
+        display: none;
+    }
+
     #title {
         width: fit-content;
     }
@@ -90,7 +94,7 @@
         display: none;
     }
 
-    .play-count {
+    .content .track .play-count {
         display: none;
     }
 }

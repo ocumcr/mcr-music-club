@@ -4,11 +4,12 @@ import { PlaylistManager } from "./PlaylistManager.js"
 import { Sound } from "./Sound.js"
 import { sendPlayCount } from "./survey.js"
 import { Header, Content } from "./UI.js"
+import { URLManager } from "./URLManager.js"
 
 let playCounted = false
 
 export const safeSendPlayCount = (title: string) => {
-    if (!playCounted && !location.search.includes("debug")) {
+    if (!playCounted && !URLManager.isDebugMode()) {
         sendPlayCount(title)
 
         playCounted = true
@@ -21,78 +22,9 @@ export const safeSendPlayCount = (title: string) => {
 
 // onClickTag をグローバル空間に公開
 ;(window as any).onClickTag = (tag: number) => {
-    const url = new URL(location.href)
-    url.searchParams.set("search", "" + tag)
-    history.pushState(null, "", url.href)
+    URLManager.setSearchQuery("" + tag)
+
     handleQueryChange()
-}
-
-// メニューに出るやつ
-export const setNavigationMenu = (track: Track) => {
-    if (!("mediaSession" in navigator)) return
-
-    navigator.mediaSession.metadata = new MediaMetadata({
-        title: track.title ?? "",
-        artist: track.author ?? "",
-        artwork: [{ src: track.thumbnail ?? "" }],
-    })
-}
-
-export const setupNavigationMenu = () => {
-    if (!("mediaSession" in navigator)) return
-
-    // 再生コントロール対応
-    navigator.mediaSession.setActionHandler("play", (e) => {
-        addLog(e.action)
-        navigator.mediaSession.playbackState = "playing"
-        EventHandlers.togglePlayback()
-    })
-
-    navigator.mediaSession.setActionHandler("pause", (e) => {
-        addLog(e.action)
-        navigator.mediaSession.playbackState = "paused"
-        EventHandlers.togglePlayback()
-    })
-
-    navigator.mediaSession.setActionHandler("nexttrack", (e) => {
-        addLog(e.action)
-        EventHandlers.handleForwardButton()
-    })
-
-    navigator.mediaSession.setActionHandler("previoustrack", (e) => {
-        addLog(e.action)
-        EventHandlers.handleBackButton()
-    })
-
-    navigator.mediaSession.setActionHandler("seekto", (e) => {
-        addLog(e.action + ": " + e.seekTime)
-
-        if (!Sound.isReady()) return
-
-        Sound.audio.currentTime = +e.seekTime!
-    })
-
-    navigator.mediaSession.setActionHandler("seekbackward", (e) => {
-        addLog(e.action + ": " + e.seekOffset)
-
-        if (!Sound.isReady()) return
-
-        Sound.audio.currentTime -= +e.seekOffset!
-    })
-
-    navigator.mediaSession.setActionHandler("seekforward", (e) => {
-        addLog(e.action + ": " + e.seekOffset)
-
-        if (!Sound.isReady()) return
-
-        Sound.audio.currentTime += +e.seekOffset!
-    })
-}
-
-const addLog = (text: string) => {
-    console.log(text)
-    // document.getElementById("debug-log").innerHTML += navigator.mediaSession.playbackState + "<br />"
-    Content.debugLog.innerHTML += text + "<br />"
 }
 
 // export const getMobileOS = () => {
@@ -116,8 +48,7 @@ export function handleQueryChange() {
 
     Header.setSearchBox("")
 
-    const url = new URL(location.href)
-    const search = url.searchParams.get("search")
+    const search = URLManager.getSearchQuery()
 
     let data = PlayerState.data
     if (search) {
@@ -127,7 +58,7 @@ export function handleQueryChange() {
         Header.setSearchBox(search)
     }
 
-    if (url.searchParams.get("debug") === "true") {
+    if (URLManager.isDebugMode()) {
         console.log("開けゴマ!")
         Content.debugLog.style.display = "block"
     }
