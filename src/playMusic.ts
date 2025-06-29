@@ -110,10 +110,7 @@ const addLog = (text: string) => {
 export function handleQueryChange() {
     console.log("クエリパラメータが変更されました: ")
 
-    Content.content.classList.remove("fade-in")
-    requestAnimationFrame(() => {
-        Content.content.classList.add("fade-in")
-    })
+    Content.fadeIn()
 
     const title = PlaylistManager.getCurrentTrackTitle()
 

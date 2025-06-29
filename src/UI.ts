@@ -114,6 +114,13 @@ export class Content {
         this.content = document.querySelector(".content")!
     }
 
+    static fadeIn() {
+        this.content.classList.remove("fade-in")
+        requestAnimationFrame(() => {
+            this.content.classList.add("fade-in")
+        })
+    }
+
     static scrollTo(index: number) {
         if (index <= -1) {
             window.scrollTo({
@@ -165,13 +172,17 @@ export class Content {
         // 各トラックのクリックイベントを設定
         document.querySelectorAll(".img-box").forEach((box, index) => {
             box.addEventListener("click", async () => {
-                await EventHandlers.changeTrack(data[index], index)
+                if (PlaylistManager.currentTrackIndex === index) {
+                    EventHandlers.togglePlayback()
+                } else {
+                    await EventHandlers.changeTrack(data[index], index)
+                }
             })
         })
 
         this.setPlayCount()
 
-        if (!PlaylistManager.isPlayed()) return
+        if (!PlaylistManager.isAvailable()) return
         this.setNowPlayingTrack({ index: PlaylistManager.currentTrackIndex })
     }
 
@@ -186,16 +197,10 @@ export class Content {
     }
 
     static removeNowPlayingTrack() {
-        const nowPlayingTrack = document.querySelector(".playing")
-        if (nowPlayingTrack) {
-            nowPlayingTrack.classList.remove("playing")
-        }
+        document.querySelector(".playing")?.classList.remove("playing")
     }
 
     static setNowPlayingTrack({ index }: { index: number }) {
-        const tracks = document.querySelectorAll<HTMLHeadingElement>(".track")
-        if (tracks[index]) {
-            tracks[index].classList.add("playing")
-        }
+        document.querySelectorAll(".track")[index]?.classList.add("playing")
     }
 }

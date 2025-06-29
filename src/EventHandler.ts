@@ -98,7 +98,7 @@ export class EventHandlers {
 
     static #setupMiniThumbnail() {
         Footer.elements.musicTitle.addEventListener("click", () => {
-            if (!PlaylistManager.isPlayed()) throw Error("")
+            if (!PlaylistManager.isAvailable()) throw Error("")
             Content.scrollTo(PlaylistManager.currentTrackIndex - 1)
         })
     }
@@ -109,9 +109,11 @@ export class EventHandlers {
         if (Sound.audio.paused) {
             Sound.audio.play()
             Footer.updatePlayButtonUI(true)
+            Content.setNowPlayingTrack({ index: PlaylistManager.currentTrackIndex })
         } else {
             Sound.audio.pause()
             Footer.updatePlayButtonUI(false)
+            Content.removeNowPlayingTrack()
         }
     }
 
@@ -121,12 +123,33 @@ export class EventHandlers {
             return
         }
 
-        const { track, index } = PlaylistManager.getPreviousTrack()
+        const previousTrack = PlaylistManager.getPreviousTrack()
+
+        if (!previousTrack) return
+
+        const { track, index } = previousTrack
         await this.changeTrack(track, index)
     }
 
     static async handleForwardButton() {
-        this.playNextTrack()
+        const isLastTrack = PlaylistManager.playlist.length - 1 === PlaylistManager.currentTrackIndex
+
+        if (isLastTrack) {
+            Content.scrollTo(-1)
+        }
+
+        if (isLastTrack && PlayerState.shuffleMode === 1) {
+            PlaylistManager.shufflePlaylist({
+                moveCurrentTrackToTop: false,
+            })
+        }
+
+        const nextTrack = PlaylistManager.getNextTrack()
+
+        if (!nextTrack) return
+
+        const { track, index } = nextTrack
+        await this.changeTrack(track, index)
     }
 
     static async changeTrack(track: Track, index: number) {
@@ -155,30 +178,17 @@ export class EventHandlers {
         title && safeSendPlayCount(title)
     }
 
-    static async playNextTrack() {
-        const isLastTrack = PlaylistManager.playlist.length - 1 === PlaylistManager.currentTrackIndex
-
-        if (isLastTrack) {
-            Content.scrollTo(-1)
-        }
-
-        if (isLastTrack && PlayerState.shuffleMode === 1) {
-            PlaylistManager.shufflePlaylist({
-                moveCurrentTrackToTop: false,
-            })
-        }
-
-        const { track, index } = PlaylistManager.getNextTrack()
-        await this.changeTrack(track, index)
-    }
-
     static #setupTrackEndedHandler(audio: HTMLAudioElement) {
         audio.onended = () => {
             if (PlayerState.loopMode === 1) {
-                this.playNextTrack()
+                this.handleForwardButton()
                 //
             } else if (PlayerState.loopMode === 0) {
-                const { track, index } = PlaylistManager.getNextTrack()
+                const nextTrack = PlaylistManager.getNextTrack()
+
+                if (!nextTrack) return
+
+                const { track, index } = nextTrack
 
                 if (index !== 0) {
                     this.changeTrack(track, index)

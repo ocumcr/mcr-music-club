@@ -8,7 +8,7 @@ export class PlaylistManager {
 
     static currentTrackIndex: number = -1
 
-    static isPlayed(): this is typeof PlayerState & { currentTrackIndex: number } {
+    static isAvailable() {
         return this.currentTrackIndex !== -1
     }
 
@@ -18,13 +18,13 @@ export class PlaylistManager {
     }
 
     static setDefaultOrder() {
-        if (this.isPlayed()) {
+        if (this.isAvailable()) {
             const currentTrack = this.playlist[this.currentTrackIndex]
 
             this.currentTrackIndex = this.defaultOrderPlaylist.indexOf(currentTrack)
-
-            this.playlist = [...this.defaultOrderPlaylist]
         }
+
+        this.playlist = [...this.defaultOrderPlaylist]
 
         Content.renderMusicList(this.playlist)
         Content.scrollTo(this.currentTrackIndex - 1)
@@ -32,7 +32,7 @@ export class PlaylistManager {
     }
 
     static shufflePlaylist({ moveCurrentTrackToTop }: { moveCurrentTrackToTop: boolean }) {
-        if (this.isPlayed()) {
+        if (this.isAvailable()) {
             const currentTrack = this.playlist[this.currentTrackIndex]
 
             // 今再生しているトラックを一番目に持ってくる
@@ -43,28 +43,29 @@ export class PlaylistManager {
             if (moveCurrentTrackToTop) {
                 this.currentTrackIndex = 0
             }
+
+            Content.scrollTo(-1)
         } else {
             this.playlist = this.#shuffleArray([...this.playlist])
         }
 
         Content.renderMusicList(this.playlist)
-        Content.scrollTo(-1)
         Content.setNowPlayingTrack({ index: this.currentTrackIndex })
     }
 
     static getCurrentTrackTitle(): string | null {
-        if (!this.isPlayed()) return null
+        if (!this.isAvailable()) return null
         return this.playlist[this.currentTrackIndex].title
     }
 
     static getNextTrack() {
-        if (!this.isPlayed()) throw Error("")
+        if (!this.isAvailable()) return null
         const nextIndex = (this.currentTrackIndex + 1) % this.playlist.length
         return { track: this.playlist[nextIndex], index: nextIndex }
     }
 
     static getPreviousTrack() {
-        if (!this.isPlayed()) throw Error("")
+        if (!this.isAvailable()) return null
         const prevIndex = (this.currentTrackIndex - 1 + this.playlist.length) % this.playlist.length
         return { track: this.playlist[prevIndex], index: prevIndex }
     }

@@ -88,10 +88,7 @@ const addLog = (text) => {
 // クエリ変更時に呼び出される関数
 export function handleQueryChange() {
     console.log("クエリパラメータが変更されました: ");
-    Content.content.classList.remove("fade-in");
-    requestAnimationFrame(() => {
-        Content.content.classList.add("fade-in");
-    });
+    Content.fadeIn();
     const title = PlaylistManager.getCurrentTrackTitle();
     Header.setSearchBox("");
     const url = new URL(location.href);
