@@ -1,8 +1,16 @@
 import { EventHandlers } from "./EventHandler.js"
-import { Sound } from "./Sound.js"
+import { SoundController } from "./SoundController.js"
 import { Content } from "./UI.js"
 
 export class Navigation {
+    static setPositionState(audio: HTMLAudioElement) {
+        navigator.mediaSession.setPositionState({
+            duration: audio.duration,
+            playbackRate: audio.playbackRate,
+            position: audio.currentTime,
+        })
+    }
+
     static setNavigationMenu(track: Track) {
         if (!("mediaSession" in navigator)) return
 
@@ -13,62 +21,50 @@ export class Navigation {
         })
     }
 
-    static setupNavigationMenu() {
+    static init() {
         if (!("mediaSession" in navigator)) return
 
         navigator.mediaSession.setPositionState({})
 
         // 再生コントロール対応
         navigator.mediaSession.setActionHandler("play", (e) => {
-            addLog(e.action)
+            Content.addLog(e.action)
             navigator.mediaSession.playbackState = "playing"
             EventHandlers.togglePlayback()
         })
 
         navigator.mediaSession.setActionHandler("pause", (e) => {
-            addLog(e.action)
+            Content.addLog(e.action)
             navigator.mediaSession.playbackState = "paused"
             EventHandlers.togglePlayback()
         })
 
         navigator.mediaSession.setActionHandler("nexttrack", (e) => {
-            addLog(e.action)
-            EventHandlers.handleForwardButton()
+            Content.addLog(e.action)
+            EventHandlers.handleForward()
         })
 
         navigator.mediaSession.setActionHandler("previoustrack", (e) => {
-            addLog(e.action)
-            EventHandlers.handleBackButton()
+            Content.addLog(e.action)
+            EventHandlers.handleBack()
         })
 
         navigator.mediaSession.setActionHandler("seekto", (e) => {
-            addLog(e.action + ": " + e.seekTime)
+            Content.addLog(e.action + ": " + e.seekTime)
 
-            if (!Sound.isReady()) return
-
-            Sound.audio.currentTime = +e.seekTime!
+            SoundController.currentTime = +e.seekTime!
         })
 
         navigator.mediaSession.setActionHandler("seekbackward", (e) => {
-            addLog(e.action + ": " + e.seekOffset)
+            Content.addLog(e.action + ": " + e.seekOffset)
 
-            if (!Sound.isReady()) return
-
-            Sound.audio.currentTime -= +e.seekOffset!
+            SoundController.currentTime -= +e.seekOffset!
         })
 
         navigator.mediaSession.setActionHandler("seekforward", (e) => {
-            addLog(e.action + ": " + e.seekOffset)
+            Content.addLog(e.action + ": " + e.seekOffset)
 
-            if (!Sound.isReady()) return
-
-            Sound.audio.currentTime += +e.seekOffset!
+            SoundController.currentTime += +e.seekOffset!
         })
     }
-}
-
-const addLog = (text: string) => {
-    console.log(text)
-    // document.getElementById("debug-log").innerHTML += navigator.mediaSession.playbackState + "<br />"
-    Content.debugLog.innerHTML += text + "<br />"
 }

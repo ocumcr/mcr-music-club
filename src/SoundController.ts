@@ -1,46 +1,55 @@
+import { EventHandlers, FooterEvents } from "./EventHandler.js"
+import { LocalStorage } from "./LocalStorage.js"
 import { PlayerState } from "./PlayerState.js"
-import { PlaylistManager } from "./PlaylistManager.js"
-import { safeSendPlayCount } from "./playMusic.js"
 import { Sound } from "./Sound.js"
-import { Footer } from "./UI.js"
 
 // Soundを使うクラス
 export class SoundController {
     static async loadTrack(track: Track) {
         await Sound.load(track.path, PlayerState.loopMode === 2)
 
-        if (!Sound.isReady()) return
-
-        this.#setupSeekBarUpdate(Sound.audio)
+        FooterEvents.setupSeekBarUpdate(Sound.audio!)
+        EventHandlers.setupTrackEndedHandler(Sound.audio!)
 
         this.updateVolume()
     }
 
-    static setCurrentTime(second: number) {
+    static updateVolume() {
+        Sound.setVolume(+LocalStorage.volume / 100)
+    }
+
+    static setLoop(loop: boolean) {
+        if (!Sound.isReady()) return
+        Sound.audio.loop = loop
+
+        PlayerState.loopMode = loop ? 2 : 0
+        LocalStorage.loopMode = PlayerState.loopMode
+    }
+
+    static play() {
+        if (!Sound.isReady()) return
+        Sound.audio.play()
+    }
+
+    static pause() {
+        if (!Sound.isReady()) return
+        Sound.audio.pause()
+    }
+
+    static isPlaying(): boolean {
+        return Sound.isReady() && !Sound.audio.paused
+    }
+
+    static getDuration(): number {
+        return Sound.isReady() ? Sound.audio.duration : 0
+    }
+
+    static set currentTime(second: number) {
         if (!Sound.isReady()) return
         Sound.audio.currentTime = second
     }
 
-    static #setupSeekBarUpdate(audio: HTMLAudioElement) {
-        // 再生中にシークバーを更新
-        audio.ontimeupdate = () => {
-            Footer.updateSeekBarAndCurrentTimeUI(audio.currentTime)
-
-            navigator.mediaSession.setPositionState({
-                duration: audio.duration,
-                playbackRate: audio.playbackRate,
-                position: audio.currentTime,
-            })
-
-            // ループ再生を検知
-            if (PlayerState.loopMode == 2 && audio.duration - audio.currentTime < 0.65) {
-                const title = PlaylistManager.getCurrentTrackTitle()
-                title && safeSendPlayCount(title)
-            }
-        }
-    }
-
-    static updateVolume() {
-        Sound.setVolume(+Footer.elements.volumeControl.value / 100)
+    static get currentTime(): number {
+        return Sound.isReady() ? Sound.audio.currentTime : 0
     }
 }

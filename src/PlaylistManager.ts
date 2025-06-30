@@ -1,6 +1,3 @@
-import { PlayerState } from "./PlayerState.js"
-import { Content } from "./UI.js"
-
 // プレイリスト管理のクラス
 export class PlaylistManager {
     static playlist: Readonly<Track[]> = []
@@ -12,9 +9,9 @@ export class PlaylistManager {
         return this.currentTrackIndex !== -1
     }
 
-    static setPlaylist(playlist: readonly Track[]) {
+    static setPlaylist(playlist: readonly Track[], shuffle: boolean) {
         this.defaultOrderPlaylist = playlist
-        this.playlist = PlayerState.shuffleMode ? this.#shuffleArray([...playlist]) : playlist
+        this.playlist = shuffle ? this.#shuffleArray([...playlist]) : playlist
     }
 
     static setDefaultOrder() {
@@ -25,10 +22,6 @@ export class PlaylistManager {
         }
 
         this.playlist = [...this.defaultOrderPlaylist]
-
-        Content.renderMusicList(this.playlist)
-        Content.scrollTo(this.currentTrackIndex - 1)
-        Content.setNowPlayingTrack({ index: this.currentTrackIndex })
     }
 
     static shufflePlaylist({ moveCurrentTrackToTop }: { moveCurrentTrackToTop: boolean }) {
@@ -43,14 +36,9 @@ export class PlaylistManager {
             if (moveCurrentTrackToTop) {
                 this.currentTrackIndex = 0
             }
-
-            Content.scrollTo(-1)
         } else {
             this.playlist = this.#shuffleArray([...this.playlist])
         }
-
-        Content.renderMusicList(this.playlist)
-        Content.setNowPlayingTrack({ index: this.currentTrackIndex })
     }
 
     static getCurrentTrackTitle(): string | null {
@@ -59,13 +47,13 @@ export class PlaylistManager {
     }
 
     static getNextTrack() {
-        if (!this.isAvailable()) return null
+        if (!this.isAvailable()) return { track: this.playlist[0], index: 0 }
         const nextIndex = (this.currentTrackIndex + 1) % this.playlist.length
         return { track: this.playlist[nextIndex], index: nextIndex }
     }
 
     static getPreviousTrack() {
-        if (!this.isAvailable()) return null
+        if (!this.isAvailable()) return { track: this.playlist[0], index: 0 }
         const prevIndex = (this.currentTrackIndex - 1 + this.playlist.length) % this.playlist.length
         return { track: this.playlist[prevIndex], index: prevIndex }
     }

@@ -1,17 +1,13 @@
-import { EventHandlers } from "./EventHandler.js"
-import { LocalStorage } from "./LocalStorage.js"
-import { LoopMode, PlayerState, ShuffleMode } from "./PlayerState.js"
-import { PlaylistManager } from "./PlaylistManager.js"
-import { handleQueryChange } from "./playMusic.js"
-import { URLManager } from "./URLManager.js"
+import { ContentEvents } from "./EventHandler.js"
+import { LoopMode, PlayCountRecord, PlayerState, ShuffleMode } from "./PlayerState.js"
 
 // UIコントロール要素の参照
 export class Footer {
     static elements: {
         playButton: HTMLElement
         seekBar: HTMLInputElement
-        currentTimeEl: HTMLElement
-        durationEl: HTMLElement
+        currentTimeText: HTMLElement
+        durationText: HTMLElement
         volumeControl: HTMLInputElement
         musicTitle: HTMLElement
         miniThumbnail: HTMLElement
@@ -21,12 +17,12 @@ export class Footer {
         forwardButton: HTMLElement
     }
 
-    static init() {
+    static init(loopMode: LoopMode, shuffleMode: ShuffleMode, volume: number) {
         this.elements = {
             playButton: document.getElementById("play-button") as HTMLElement,
             seekBar: document.getElementById("seekBar") as HTMLInputElement,
-            currentTimeEl: document.getElementById("currentTime") as HTMLElement,
-            durationEl: document.getElementById("duration") as HTMLElement,
+            currentTimeText: document.getElementById("currentTime") as HTMLElement,
+            durationText: document.getElementById("duration") as HTMLElement,
             volumeControl: document.getElementById("volume") as HTMLInputElement,
             musicTitle: document.getElementById("music-title") as HTMLElement,
             miniThumbnail: document.getElementById("mini-thumbnail") as HTMLElement,
@@ -36,13 +32,13 @@ export class Footer {
             forwardButton: document.getElementById("forward-button") as HTMLElement,
         }
 
-        this.#initializeVolume()
-        this.updateLoopButtonUI(LocalStorage.loopMode)
-        this.updateShuffleButtonUI(LocalStorage.shuffleMode)
+        this.#initializeVolume(volume)
+        this.updateLoopButtonUI(loopMode)
+        this.updateShuffleButtonUI(shuffleMode)
     }
 
-    static #initializeVolume() {
-        this.elements.volumeControl.value = "" + LocalStorage.volume
+    static #initializeVolume(volume: number) {
+        this.elements.volumeControl.value = "" + volume
     }
 
     static updateLoopButtonUI(loopMode: LoopMode) {
@@ -74,7 +70,7 @@ export class Footer {
     }
 
     static updateDurationUI(time: number) {
-        this.elements.durationEl.innerText = this.#formatTime(time)
+        this.elements.durationText.innerText = this.#formatTime(time)
     }
 
     static updateSeekBarMax(max: number) {
@@ -82,7 +78,7 @@ export class Footer {
     }
 
     static updateSeekBarAndCurrentTimeUI(time: number) {
-        this.elements.currentTimeEl.innerText = this.#formatTime(time)
+        this.elements.currentTimeText.innerText = this.#formatTime(time)
         this.elements.seekBar.value = String(time)
     }
 
@@ -95,36 +91,33 @@ export class Footer {
 
 export class Header {
     static title: HTMLElement
-    static #search: HTMLInputElement
+    static search: HTMLInputElement
 
     static init() {
         this.title = document.getElementById("title")!
-        this.#search = document.getElementById("search") as HTMLInputElement
-
-        const form = document.querySelector<HTMLFormElement>(".search")!
-
-        form.onsubmit = (e) => {
-            e.preventDefault()
-
-            URLManager.setSearchQuery(this.#search.value)
-
-            // 必要ならここで検索処理を呼び出す
-            handleQueryChange()
-        }
+        this.search = document.getElementById("search") as HTMLInputElement
     }
 
     static setSearchBox(text: string) {
-        this.#search.value = text
+        this.search.value = text
     }
 }
 
 export class Content {
     static debugLog: HTMLElement
     static content: HTMLElement
+    static #musics: HTMLOListElement
 
     static init() {
         this.debugLog = document.getElementById("debug-log")!
         this.content = document.querySelector(".content")!
+        this.#musics = document.querySelector(".musics") as HTMLOListElement
+    }
+
+    static addLog(text: string) {
+        console.log(text)
+        // document.getElementById("debug-log").innerHTML += navigator.mediaSession.playbackState + "<br />"
+        this.debugLog.innerHTML += text + "<br />"
     }
 
     static fadeIn() {
@@ -149,10 +142,17 @@ export class Content {
         }
     }
 
-    static renderMusicList(data: readonly Track[]) {
-        const ol = document.querySelector(".musics")!
+    static renderPlaylist(playlist: readonly Track[]) {
+        this.#musics.innerHTML = playlist.map(this.#createTrackElement).join("")
 
-        const createTrackElement = (track: Track) => `
+        ContentEvents.setupTrackClickEvents(playlist)
+        this.setPlayCount(playlist, PlayerState.playCountRecord)
+    }
+
+    static #createTrackElement(track: Track) {
+        const tags = track.tags.map((tag) => `<button class="tag-button">#${tag}</button>`).join("")
+
+        return `
             <li class="track">
                 <div class="img-box" style="
                     background: url(${track.thumbnail});
@@ -167,53 +167,23 @@ export class Content {
                     <p onclick="onClickTag('${track.author}')" class="author">${track.author}</p>
                     <p>${track.description}</p>
                     <div class="tags">
-                        ${track.tags
-                            .map(
-                                (tag) => `
-                                    <button class="tag-button" onclick="onClickTag('${tag}')">#${tag}</button>
-                                `,
-                            )
-                            .join("")}
+                        ${tags}
                     </div>
                 </div>
                 <div class="play-count">取得中...</div>
             </li>
         `
-
-        ol.innerHTML = data.map(createTrackElement).join("")
-
-        // 各トラックのクリックイベントを設定
-        document.querySelectorAll(".img-box").forEach((box, index) => {
-            box.addEventListener("click", async () => {
-                if (PlaylistManager.currentTrackIndex === index) {
-                    EventHandlers.togglePlayback()
-                } else {
-                    await EventHandlers.changeTrack(data[index], index)
-                }
-            })
-        })
-
-        this.setPlayCount()
-
-        if (!PlaylistManager.isAvailable()) return
-        this.setNowPlayingTrack({ index: PlaylistManager.currentTrackIndex })
     }
 
-    static setPlayCount() {
+    static setPlayCount(playlist: readonly Track[], playCountRecord: PlayCountRecord) {
         const list = document.querySelectorAll<HTMLElement>(".play-count")
 
-        if (!PlayerState.playCountRecord) return
-
-        PlaylistManager.playlist.forEach((obj, i) => {
-            list[i].innerText = "再生回数: " + (PlayerState.playCountRecord[obj.title] ?? 0)
+        playlist.forEach((obj, i) => {
+            list[i].innerText = "再生回数: " + (playCountRecord[obj.title] ?? 0)
         })
     }
 
-    static removeNowPlayingTrack() {
-        document.querySelector(".playing")?.classList.remove("playing")
-    }
-
-    static setNowPlayingTrack({ index }: { index: number }) {
-        document.querySelectorAll(".track")[index]?.classList.add("playing")
+    static updateNowPlayingTrack(index: number) {
+        document.querySelectorAll(".track").forEach((track, i) => track.classList.toggle("playing", i === index))
     }
 }

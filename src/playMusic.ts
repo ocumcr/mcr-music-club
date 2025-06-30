@@ -1,7 +1,5 @@
-import { EventHandlers } from "./EventHandler.js"
 import { PlayerState } from "./PlayerState.js"
 import { PlaylistManager } from "./PlaylistManager.js"
-import { Sound } from "./Sound.js"
 import { sendPlayCount } from "./survey.js"
 import { Header, Content } from "./UI.js"
 import { URLManager } from "./URLManager.js"
@@ -18,13 +16,6 @@ export const safeSendPlayCount = (title: string) => {
             playCounted = false
         }, 1000)
     }
-}
-
-// onClickTag をグローバル空間に公開
-;(window as any).onClickTag = (tag: number) => {
-    URLManager.setSearchQuery("" + tag)
-
-    handleQueryChange()
 }
 
 // export const getMobileOS = () => {
@@ -63,9 +54,10 @@ export function handleQueryChange() {
         Content.debugLog.style.display = "block"
     }
 
-    PlaylistManager.setPlaylist(data)
+    PlaylistManager.setPlaylist(data, PlayerState.shuffleMode === 1)
     PlaylistManager.currentTrackIndex = PlaylistManager.playlist.findIndex((track) => track.title === title)
-    Content.renderMusicList(PlaylistManager.playlist)
+    Content.renderPlaylist(PlaylistManager.playlist)
+    Content.updateNowPlayingTrack(PlaylistManager.currentTrackIndex)
 }
 
 // 履歴変更検知用のイベントリスナー

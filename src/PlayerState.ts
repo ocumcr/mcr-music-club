@@ -8,7 +8,7 @@ export class PlayerState {
     static shuffleMode: ShuffleMode = LocalStorage.shuffleMode
 }
 
-type PlayCountRecord = Readonly<{
+export type PlayCountRecord = Readonly<{
     [title: string]: number
 }>
 

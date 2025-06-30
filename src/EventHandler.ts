@@ -2,14 +2,45 @@ import { SoundController } from "./SoundController.js"
 import { LoopMode, PlayerState, ShuffleMode } from "./PlayerState.js"
 import { PlaylistManager } from "./PlaylistManager.js"
 import { handleQueryChange, safeSendPlayCount } from "./playMusic.js"
-import { Sound } from "./Sound.js"
 import { Header, Footer, Content } from "./UI.js"
 import { LocalStorage } from "./LocalStorage.js"
 import { URLManager } from "./URLManager.js"
 import { Navigation } from "./Navigation.js"
 
-// イベントハンドラの設定
-export class EventHandlers {
+export class HeaderEvents {
+    static #initialized = false
+
+    static init() {
+        if (this.#initialized) throw new Error("すでにinitialized!")
+
+        this.#setupForm()
+        this.#setupTitle()
+
+        this.#initialized = true
+    }
+
+    static #setupForm() {
+        const form = document.querySelector<HTMLFormElement>(".search")!
+
+        form.onsubmit = (e) => {
+            e.preventDefault()
+            URLManager.setSearchQuery(Header.search.value)
+            handleQueryChange()
+        }
+    }
+
+    static #setupTitle() {
+        Header.title.addEventListener("click", (e) => {
+            e.preventDefault()
+
+            URLManager.clearSearchQuery()
+
+            handleQueryChange()
+        })
+    }
+}
+
+export class FooterEvents {
     static #initialized = false
 
     static init() {
@@ -20,49 +51,58 @@ export class EventHandlers {
         this.#setupVolumeControls()
         this.#setupLoopControls()
         this.#setupShuffleControls()
-        this.#setupKeyboardControls()
-        this.#setupTitle()
-        this.#setupMiniThumbnail()
-        this.#setupVisibilityHandler()
 
         this.#initialized = true
     }
 
+    static setupSeekBarUpdate(audio: HTMLAudioElement) {
+        // 再生中にシークバーを更新
+        audio.ontimeupdate = () => {
+            Footer.updateSeekBarAndCurrentTimeUI(audio.currentTime)
+
+            Navigation.setPositionState(audio)
+
+            // ループ再生を検知
+            if (PlayerState.loopMode == 2 && audio.duration - audio.currentTime < 0.65) {
+                const title = PlaylistManager.getCurrentTrackTitle()
+                title && safeSendPlayCount(title)
+            }
+        }
+    }
+
     static #setupPlaybackControls() {
-        Footer.elements.playButton.addEventListener("click", () => this.togglePlayback())
-        Footer.elements.backButton.onclick = () => this.handleBackButton()
-        Footer.elements.forwardButton.onclick = () => this.handleForwardButton()
+        Footer.elements.playButton.onclick = () => EventHandlers.togglePlayback()
+        Footer.elements.backButton.onclick = () => EventHandlers.handleBack()
+        Footer.elements.forwardButton.onclick = () => EventHandlers.handleForward()
     }
 
     static #setupSeekBarControls() {
-        Footer.elements.seekBar.addEventListener("input", () => {
-            SoundController.setCurrentTime(+Footer.elements.seekBar.value)
-        })
+        Footer.elements.seekBar.oninput = () => {
+            SoundController.currentTime = +Footer.elements.seekBar.value
+        }
     }
 
     static #setupVolumeControls() {
-        Footer.elements.volumeControl.addEventListener("input", (e) => {
+        Footer.elements.volumeControl.oninput = (e) => {
             LocalStorage.volume = +(e.target as HTMLInputElement).value
             SoundController.updateVolume()
-        })
+        }
     }
 
     static #setupLoopControls() {
-        Footer.elements.loopButton.addEventListener("click", () => {
+        Footer.elements.loopButton.onclick = () => {
             PlayerState.loopMode = ((PlayerState.loopMode + 1) % 3) as LoopMode
 
             LocalStorage.loopMode = PlayerState.loopMode
 
             Footer.updateLoopButtonUI(PlayerState.loopMode)
 
-            if (Sound.isReady()) {
-                Sound.audio.loop = PlayerState.loopMode === 2
-            }
-        })
+            SoundController.setLoop(PlayerState.loopMode === 2)
+        }
     }
 
     static #setupShuffleControls() {
-        Footer.elements.shuffleButton.addEventListener("click", () => {
+        Footer.elements.shuffleButton.onclick = () => {
             PlayerState.shuffleMode = (1 - PlayerState.shuffleMode) as ShuffleMode
 
             LocalStorage.shuffleMode = PlayerState.shuffleMode
@@ -76,52 +116,85 @@ export class EventHandlers {
             } else {
                 PlaylistManager.setDefaultOrder()
             }
-        })
+
+            Content.renderPlaylist(PlaylistManager.playlist)
+            Content.updateNowPlayingTrack(PlaylistManager.currentTrackIndex)
+            Content.scrollTo(PlaylistManager.currentTrackIndex)
+        }
     }
+}
 
-    static #setupTitle() {
-        Header.title.addEventListener("click", (e) => {
-            e.preventDefault()
+export class ContentEvents {
+    static #initialized = false
 
-            URLManager.clearSearchQuery()
+    static init() {
+        if (this.#initialized) throw new Error("すでにinitialized!")
 
-            handleQueryChange()
-        })
-    }
+        this.#setupMiniThumbnail()
 
-    static #setupKeyboardControls() {
-        window.addEventListener("keydown", (e) => {
-            if (e.code === "Space") {
-                e.preventDefault()
-                this.togglePlayback()
-            }
-        })
+        this.#initialized = true
     }
 
     static #setupMiniThumbnail() {
         Footer.elements.musicTitle.addEventListener("click", () => {
-            if (!PlaylistManager.isAvailable()) throw Error("")
-            Content.scrollTo(PlaylistManager.currentTrackIndex - 1)
+            Content.scrollTo(PlaylistManager.currentTrackIndex)
         })
     }
 
-    static togglePlayback() {
-        if (!Sound.isReady()) return
+    static setupTrackClickEvents(playlist: readonly Track[]) {
+        document.querySelectorAll(".track").forEach((track, i) => {
+            track.querySelector(".img-box")!.addEventListener("click", async () => {
+                if (PlaylistManager.currentTrackIndex === i) {
+                    // 現在のトラックがクリックされた場合は再生/一時停止を切り替える
+                    EventHandlers.togglePlayback()
+                } else {
+                    // 別のトラックがクリックされた場合はそのトラックを再生する
+                    await EventHandlers.changeTrack(playlist[i], i)
+                }
+            })
 
-        if (Sound.audio.paused) {
-            Sound.audio.play()
-            Footer.updatePlayButtonUI(true)
-            Content.setNowPlayingTrack({ index: PlaylistManager.currentTrackIndex })
-        } else {
-            Sound.audio.pause()
-            Footer.updatePlayButtonUI(false)
-            Content.removeNowPlayingTrack()
-        }
+            track.querySelectorAll(".tag-button").forEach((button, j) => {
+                button.addEventListener("click", () => {
+                    this.#onClickTag(playlist[i].tags[j])
+                })
+            })
+        })
     }
 
-    static async handleBackButton() {
-        if (Sound.isReady() && Sound.audio.currentTime > 0.5) {
-            Sound.audio.currentTime = 0
+    static #onClickTag(tag: string) {
+        URLManager.setSearchQuery(tag)
+        handleQueryChange()
+    }
+}
+
+// イベントハンドラの設定
+export class EventHandlers {
+    static #initialized = false
+
+    static init() {
+        if (this.#initialized) throw new Error("すでにinitialized!")
+
+        this.#setupKeyboardControls()
+        this.#setupVisibilityHandler()
+
+        this.#initialized = true
+    }
+
+    static togglePlayback() {
+        if (SoundController.isPlaying()) {
+            SoundController.pause()
+            Footer.updatePlayButtonUI(false)
+        } else {
+            SoundController.play()
+            Footer.updatePlayButtonUI(true)
+        }
+
+        Content.updateNowPlayingTrack(PlaylistManager.currentTrackIndex)
+    }
+
+    static async handleBack() {
+        if (SoundController.currentTime > 0.5) {
+            SoundController.currentTime = 0
             return
         }
 
@@ -130,10 +203,10 @@ export class EventHandlers {
         if (!previousTrack) return
 
         const { track, index } = previousTrack
-        await this.changeTrack(track, index)
+        await EventHandlers.changeTrack(track, index)
     }
 
-    static async handleForwardButton() {
+    static async handleForward() {
         const isLastTrack = PlaylistManager.playlist.length - 1 === PlaylistManager.currentTrackIndex
 
         if (isLastTrack) {
@@ -144,6 +217,10 @@ export class EventHandlers {
             PlaylistManager.shufflePlaylist({
                 moveCurrentTrackToTop: false,
             })
+
+            Content.renderPlaylist(PlaylistManager.playlist)
+            Content.updateNowPlayingTrack(PlaylistManager.currentTrackIndex)
+            Content.scrollTo(PlaylistManager.currentTrackIndex)
         }
 
         const nextTrack = PlaylistManager.getNextTrack()
@@ -151,39 +228,33 @@ export class EventHandlers {
         if (!nextTrack) return
 
         const { track, index } = nextTrack
-        await this.changeTrack(track, index)
+        await EventHandlers.changeTrack(track, index)
     }
 
     static async changeTrack(track: Track, index: number) {
-        Content.removeNowPlayingTrack()
-
         await SoundController.loadTrack(track)
 
-        if (!Sound.isReady()) return
+        const duration = SoundController.getDuration()
 
         Footer.updateTrackInfo(track)
         Footer.updatePlayButtonUI(true)
-        Footer.updateSeekBarMax(Sound.audio.duration)
-        Footer.updateDurationUI(Sound.audio.duration)
-        Content.setNowPlayingTrack({
-            index,
-        })
+        Footer.updateSeekBarMax(duration)
+        Footer.updateDurationUI(duration)
+        Content.updateNowPlayingTrack(index)
 
         Navigation.setNavigationMenu(track)
 
         PlaylistManager.currentTrackIndex = index
-        Sound.audio.play()
-
-        this.#setupTrackEndedHandler(Sound.audio)
+        SoundController.play()
 
         const title = PlaylistManager.getCurrentTrackTitle()
         title && safeSendPlayCount(title)
     }
 
-    static #setupTrackEndedHandler(audio: HTMLAudioElement) {
+    static setupTrackEndedHandler(audio: HTMLAudioElement) {
         audio.onended = () => {
             if (PlayerState.loopMode === 1) {
-                this.handleForwardButton()
+                this.handleForward()
                 //
             } else if (PlayerState.loopMode === 0) {
                 const nextTrack = PlaylistManager.getNextTrack()
@@ -199,6 +270,15 @@ export class EventHandlers {
                 }
             }
         }
+    }
+
+    static #setupKeyboardControls() {
+        window.addEventListener("keydown", (e) => {
+            if (e.code === "Space") {
+                e.preventDefault()
+                this.togglePlayback()
+            }
+        })
     }
 
     static #setupVisibilityHandler() {
