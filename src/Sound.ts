@@ -33,11 +33,43 @@ export class Sound {
         })
     }
 
+    static play() {
+        if (!this.isReady()) return
+        this.audio.play()
+    }
+
+    static pause() {
+        if (!this.isReady()) return
+        this.audio.pause()
+    }
+
+    static isPlaying(): boolean {
+        return this.isReady() && !this.audio.paused
+    }
+
+    static setLoop(loop: boolean) {
+        if (!this.isReady()) return
+        this.audio.loop = loop
+    }
+
     static isReady(): this is typeof Sound & { audio: HTMLAudioElement } {
         return this.#isReady
     }
 
     static setVolume(volume: number) {
         this.#gain.gain.value = volume
+    }
+
+    static getDuration(): number {
+        return this.isReady() ? this.audio.duration : 0
+    }
+
+    static set currentTime(second: number) {
+        if (!this.isReady()) return
+        this.audio.currentTime = second
+    }
+
+    static get currentTime(): number {
+        return this.isReady() ? this.audio.currentTime : 0
     }
 }

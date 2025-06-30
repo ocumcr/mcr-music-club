@@ -7,3 +7,10 @@ type Track = {
     thumbnail: string
     tags: string[]
 }
+
+type PlayCountRecord = Readonly<{
+    [title: string]: number
+}>
+
+type LoopMode = 0 | 1 | 2
+type ShuffleMode = 0 | 1

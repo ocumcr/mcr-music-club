@@ -1,0 +1,1 @@
+"use strict";export class Header{static title;static search;static init(){this.title=document.getElementById("title"),this.search=document.getElementById("search")}static setSearchBox(t){this.search.value=t}}

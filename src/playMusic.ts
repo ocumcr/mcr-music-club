@@ -1,7 +1,10 @@
-import { PlayerState } from "./PlayerState.js"
+import { AppState } from "./AppState.js"
 import { PlaylistManager } from "./PlaylistManager.js"
 import { sendPlayCount } from "./survey.js"
-import { Header, Content } from "./UI.js"
+
+import { Content } from "./UI/Content.js"
+import { Header } from "./UI/Header.js"
+
 import { URLManager } from "./URLManager.js"
 
 let playCounted = false
@@ -41,9 +44,9 @@ export function handleQueryChange() {
 
     const search = URLManager.getSearchQuery()
 
-    let data = PlayerState.data
+    let data = AppState.data
     if (search) {
-        data = PlayerState.data.filter(
+        data = AppState.data.filter(
             (track) => track.tags.includes(search) || track.title.includes(search) || track.author === search,
         )
         Header.setSearchBox(search)
@@ -54,10 +57,10 @@ export function handleQueryChange() {
         Content.debugLog.style.display = "block"
     }
 
-    PlaylistManager.setPlaylist(data, PlayerState.shuffleMode === 1)
+    PlaylistManager.setPlaylist(data, AppState.shuffleMode === 1)
     PlaylistManager.currentTrackIndex = PlaylistManager.playlist.findIndex((track) => track.title === title)
     Content.renderPlaylist(PlaylistManager.playlist)
-    Content.updateNowPlayingTrack(PlaylistManager.currentTrackIndex)
+    Content.updatePlayingClass(PlaylistManager.currentTrackIndex)
 }
 
 // 履歴変更検知用のイベントリスナー

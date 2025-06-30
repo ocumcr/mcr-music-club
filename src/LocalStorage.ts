@@ -1,5 +1,3 @@
-import { LoopMode, ShuffleMode } from "./PlayerState"
-
 export class LocalStorage {
     static set volume(volume: number) {
         localStorage.setItem("volume", "" + volume)

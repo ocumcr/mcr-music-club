@@ -1,6 +1,6 @@
-import { EventHandlers } from "./EventHandler.js"
-import { SoundController } from "./SoundController.js"
-import { Content } from "./UI.js"
+import { EventHandlers } from "./EventHandlers/EventHandlers.js"
+import { Sound } from "./Sound.js"
+import { Content } from "./UI/Content.js"
 
 export class Navigation {
     static setPositionState(audio: HTMLAudioElement) {
@@ -52,19 +52,19 @@ export class Navigation {
         navigator.mediaSession.setActionHandler("seekto", (e) => {
             Content.addLog(e.action + ": " + e.seekTime)
 
-            SoundController.currentTime = +e.seekTime!
+            Sound.currentTime = +e.seekTime!
         })
 
         navigator.mediaSession.setActionHandler("seekbackward", (e) => {
             Content.addLog(e.action + ": " + e.seekOffset)
 
-            SoundController.currentTime -= +e.seekOffset!
+            Sound.currentTime -= +e.seekOffset!
         })
 
         navigator.mediaSession.setActionHandler("seekforward", (e) => {
             Content.addLog(e.action + ": " + e.seekOffset)
 
-            SoundController.currentTime += +e.seekOffset!
+            Sound.currentTime += +e.seekOffset!
         })
     }
 }
