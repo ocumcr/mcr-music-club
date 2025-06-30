@@ -3,6 +3,7 @@ import { LocalStorage } from "./LocalStorage.js"
 import { PlaylistManager } from "./PlaylistManager.js"
 import { Content } from "./UI/Content.js"
 import { Header } from "./UI/Header.js"
+import { Sound } from "./Sound.js"
 
 export class URLManager {
     static isDebugMode(): boolean {
@@ -42,7 +43,10 @@ export class URLManager {
         PlaylistManager.setPlaylist(data, LocalStorage.shuffleMode === 1)
         PlaylistManager.currentTrackIndex = PlaylistManager.playlist.findIndex((track) => track.title === title)
         Content.renderPlaylist(PlaylistManager.playlist)
-        Content.updatePlayingClass(PlaylistManager.currentTrackIndex)
+
+        if (Sound.isPlaying()) {
+            Content.updatePlayingClass(PlaylistManager.currentTrackIndex)
+        }
     }
 
     static #getSearchQuery(): string | null {

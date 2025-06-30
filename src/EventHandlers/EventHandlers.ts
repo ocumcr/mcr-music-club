@@ -22,17 +22,17 @@ export class EventHandlers {
     }
 
     static togglePlayback() {
-        if (!PlaylistManager.isAvailable()) return
+        if (!Sound.isReady()) return
 
         if (Sound.isPlaying()) {
             Sound.pause()
             Footer.updatePlayButtonUI(false)
+            Content.updatePlayingClass(-1)
         } else {
             Sound.play()
             Footer.updatePlayButtonUI(true)
+            Content.updatePlayingClass(PlaylistManager.currentTrackIndex)
         }
-
-        Content.updatePlayingClass(PlaylistManager.currentTrackIndex)
     }
 
     static async handleBack() {
@@ -43,13 +43,13 @@ export class EventHandlers {
 
         const { track, index } = PlaylistManager.getPreviousTrack()
         await this.changeTrack(track, index)
-        Content.scrollTo(PlaylistManager.currentTrackIndex - 1)
+        Content.scrollTo(PlaylistManager.currentTrackIndex)
     }
 
-    static async handleForward() {
+    static async handleForward({ scroll = true } = {}) {
         const { track, index } = PlaylistManager.getNextTrack()
         await this.changeTrack(track, index)
-        Content.scrollTo(PlaylistManager.currentTrackIndex - 1)
+        scroll && Content.scrollTo(PlaylistManager.currentTrackIndex)
     }
 
     static async changeTrack(track: Track, index: number) {
@@ -78,17 +78,19 @@ export class EventHandlers {
     static #setupTrackEnded(audio: HTMLAudioElement) {
         audio.onended = () => {
             if (LocalStorage.loopMode === 1) {
-                this.handleForward()
+                this.handleForward({ scroll: false })
                 //
             } else if (LocalStorage.loopMode === 0) {
-                const { track, index } = PlaylistManager.getNextTrack()
+                const isLast = PlaylistManager.playlist.length - 1 === PlaylistManager.currentTrackIndex
 
-                if (index === 0) {
+                if (isLast) {
                     // 止める
                     Footer.updatePlayButtonUI(false)
-                } else {
-                    this.changeTrack(track, index)
+                    Content.updatePlayingClass(-1)
+                    return
                 }
+
+                this.handleForward({ scroll: false })
             }
         }
     }

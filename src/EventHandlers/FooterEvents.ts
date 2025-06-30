@@ -42,7 +42,7 @@ export class FooterEvents {
 
     static #setupMiniThumbnail() {
         Footer.elements.musicTitle.addEventListener("click", () => {
-            Content.scrollTo(PlaylistManager.currentTrackIndex - 1)
+            Content.scrollTo(PlaylistManager.currentTrackIndex)
         })
     }
 
@@ -95,7 +95,7 @@ export class FooterEvents {
 
             Content.renderPlaylist(PlaylistManager.playlist)
             Content.updatePlayingClass(PlaylistManager.currentTrackIndex)
-            Content.scrollTo(PlaylistManager.currentTrackIndex - 1)
+            Content.scrollTo(PlaylistManager.currentTrackIndex)
         }
     }
 }

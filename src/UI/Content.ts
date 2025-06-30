@@ -26,13 +26,13 @@ export class Content {
     }
 
     static scrollTo(index: number) {
-        if (index <= -1) {
+        if (index <= 0) {
             window.scrollTo({
                 top: 0,
                 behavior: "smooth",
             })
         } else {
-            const track = document.querySelectorAll(".track")[index]
+            const track = document.querySelectorAll(".track")[index - 1]
 
             track.scrollIntoView({
                 behavior: "smooth",

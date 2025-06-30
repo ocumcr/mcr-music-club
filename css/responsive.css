@@ -1,7 +1,13 @@
 @media (max-width: 1200px) {
     .hidden-twitter {
-        display: block;
-        margin: 0 20px;
+        display: flex;
+        height: 100%;
+        aspect-ratio: 1;
+
+        font-size: 32px;
+
+        justify-content: center;
+        align-items: center;
     }
 
     .volume-control {
@@ -31,6 +37,10 @@
         font-size: 48px;
     }
 
+    .music-thumbnail {
+        min-width: 200px;
+    }
+
     .tag-button {
         padding: 5px 10px;
 
@@ -55,7 +65,7 @@
     }
 }
 
-@media (max-width: 530px) {
+@media (max-width: 600px) {
     .music-thumbnail {
         display: none;
     }
@@ -64,26 +74,9 @@
         width: fit-content;
     }
 
-    .hidden-twitter {
-        margin: 0 10px;
-    }
-
     #title h1 {
         font-size: 24px;
         padding-bottom: 4px;
-    }
-
-    .content {
-        margin-top: 40px;
-        margin-bottom: 40px;
-    }
-
-    .header {
-        height: 40px;
-
-        & .search {
-            padding: 4px;
-        }
     }
 
     .volume-control {
