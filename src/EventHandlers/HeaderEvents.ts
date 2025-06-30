@@ -1,4 +1,3 @@
-import { handleQueryChange } from "../playMusic.js"
 import { Header } from "../UI/Header.js"
 import { URLManager } from "../URLManager.js"
 
@@ -19,18 +18,16 @@ export class HeaderEvents {
 
         form.onsubmit = (e) => {
             e.preventDefault()
-            URLManager.setSearchQuery(Header.search.value)
-            handleQueryChange()
+
+            URLManager.search(Header.search.value)
         }
     }
 
     static #setupTitle() {
-        Header.title.addEventListener("click", (e) => {
+        Header.title.onclick = (e) => {
             e.preventDefault()
 
-            URLManager.clearSearchQuery()
-
-            handleQueryChange()
-        })
+            URLManager.search("")
+        }
     }
 }

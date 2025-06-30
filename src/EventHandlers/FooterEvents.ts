@@ -1,14 +1,13 @@
 import { LocalStorage } from "../LocalStorage.js"
 import { Navigation } from "../Navigation.js"
-import { AppState } from "../AppState.js"
 import { PlaylistManager } from "../PlaylistManager.js"
-import { safeSendPlayCount } from "../playMusic.js"
 import { Sound } from "../Sound.js"
 
 import { Content } from "../UI/Content.js"
 import { Footer } from "../UI/Footer.js"
 
 import { EventHandlers } from "./EventHandlers.js"
+import { Survey } from "../Survey.js"
 
 export class FooterEvents {
     static #initialized = false
@@ -34,16 +33,16 @@ export class FooterEvents {
             Navigation.setPositionState(audio)
 
             // ループ再生を検知
-            if (AppState.loopMode == 2 && audio.duration - audio.currentTime < 0.65) {
+            if (LocalStorage.loopMode == 2 && audio.duration - audio.currentTime < 0.65) {
                 const title = PlaylistManager.getCurrentTrackTitle()
-                title && safeSendPlayCount(title)
+                title && Survey.safeSendPlayCount(title)
             }
         }
     }
 
     static #setupMiniThumbnail() {
         Footer.elements.musicTitle.addEventListener("click", () => {
-            Content.scrollTo(PlaylistManager.currentTrackIndex)
+            Content.scrollTo(PlaylistManager.currentTrackIndex - 1)
         })
     }
 
@@ -62,31 +61,31 @@ export class FooterEvents {
     static #setupVolumeControls() {
         Footer.elements.volumeControl.oninput = (e) => {
             LocalStorage.volume = +(e.target as HTMLInputElement).value
-            Sound.setVolume(LocalStorage.volume)
+            Sound.setVolume(LocalStorage.volume / 100)
         }
     }
 
     static #setupLoopControls() {
         Footer.elements.loopButton.onclick = () => {
-            AppState.loopMode = ((AppState.loopMode + 1) % 3) as LoopMode
+            LocalStorage.loopMode = ((LocalStorage.loopMode + 1) % 3) as LoopMode
 
-            LocalStorage.loopMode = AppState.loopMode
+            LocalStorage.loopMode = LocalStorage.loopMode
 
-            Footer.updateLoopButtonUI(AppState.loopMode)
+            Footer.updateLoopButtonUI(LocalStorage.loopMode)
 
-            Sound.setLoop(AppState.loopMode === 2)
+            Sound.setLoop(LocalStorage.loopMode === 2)
         }
     }
 
     static #setupShuffleControls() {
         Footer.elements.shuffleButton.onclick = () => {
-            AppState.shuffleMode = (1 - AppState.shuffleMode) as ShuffleMode
+            LocalStorage.shuffleMode = (1 - LocalStorage.shuffleMode) as ShuffleMode
 
-            LocalStorage.shuffleMode = AppState.shuffleMode
+            LocalStorage.shuffleMode = LocalStorage.shuffleMode
 
-            Footer.updateShuffleButtonUI(AppState.shuffleMode)
+            Footer.updateShuffleButtonUI(LocalStorage.shuffleMode)
 
-            if (AppState.shuffleMode === 1) {
+            if (LocalStorage.shuffleMode === 1) {
                 PlaylistManager.shufflePlaylist({
                     moveCurrentTrackToTop: true,
                 })
@@ -96,7 +95,7 @@ export class FooterEvents {
 
             Content.renderPlaylist(PlaylistManager.playlist)
             Content.updatePlayingClass(PlaylistManager.currentTrackIndex)
-            Content.scrollTo(PlaylistManager.currentTrackIndex)
+            Content.scrollTo(PlaylistManager.currentTrackIndex - 1)
         }
     }
 }

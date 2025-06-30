@@ -1,13 +1,12 @@
 import { Sound } from "../Sound.js"
-import { AppState } from "../AppState.js"
 import { PlaylistManager } from "../PlaylistManager.js"
-import { safeSendPlayCount } from "../playMusic.js"
 import { Navigation } from "../Navigation.js"
 
 import { Footer } from "../UI/Footer.js"
 import { Content } from "../UI/Content.js"
 import { LocalStorage } from "../LocalStorage.js"
 import { FooterEvents } from "./FooterEvents.js"
+import { Survey } from "../Survey.js"
 
 // イベントハンドラの設定
 export class EventHandlers {
@@ -23,6 +22,8 @@ export class EventHandlers {
     }
 
     static togglePlayback() {
+        if (!PlaylistManager.isAvailable()) return
+
         if (Sound.isPlaying()) {
             Sound.pause()
             Footer.updatePlayButtonUI(false)
@@ -42,36 +43,22 @@ export class EventHandlers {
 
         const { track, index } = PlaylistManager.getPreviousTrack()
         await this.changeTrack(track, index)
+        Content.scrollTo(PlaylistManager.currentTrackIndex - 1)
     }
 
     static async handleForward() {
-        const isLastTrack = PlaylistManager.playlist.length - 1 === PlaylistManager.currentTrackIndex
-
-        if (isLastTrack && AppState.shuffleMode === 0) {
-            Content.scrollTo(-1)
-        }
-
-        if (isLastTrack && AppState.shuffleMode === 1) {
-            PlaylistManager.shufflePlaylist({
-                moveCurrentTrackToTop: false,
-            })
-
-            Content.renderPlaylist(PlaylistManager.playlist)
-            Content.updatePlayingClass(PlaylistManager.currentTrackIndex)
-            Content.scrollTo(PlaylistManager.currentTrackIndex)
-        }
-
         const { track, index } = PlaylistManager.getNextTrack()
         await this.changeTrack(track, index)
+        Content.scrollTo(PlaylistManager.currentTrackIndex - 1)
     }
 
     static async changeTrack(track: Track, index: number) {
-        await Sound.load(track.path, AppState.loopMode === 2)
-        Sound.setVolume(LocalStorage.volume)
+        await Sound.load(track.path, LocalStorage.loopMode === 2)
+        Sound.setVolume(LocalStorage.volume / 100)
         Sound.play()
 
         FooterEvents.setupSeekBarUpdate(Sound.audio!)
-        this.#setupTrackEndedHandler(Sound.audio!)
+        this.#setupTrackEnded(Sound.audio!)
 
         const duration = Sound.getDuration()
 
@@ -85,15 +72,15 @@ export class EventHandlers {
 
         PlaylistManager.currentTrackIndex = index
 
-        safeSendPlayCount(track.title)
+        Survey.safeSendPlayCount(track.title)
     }
 
-    static #setupTrackEndedHandler(audio: HTMLAudioElement) {
+    static #setupTrackEnded(audio: HTMLAudioElement) {
         audio.onended = () => {
-            if (AppState.loopMode === 1) {
+            if (LocalStorage.loopMode === 1) {
                 this.handleForward()
                 //
-            } else if (AppState.loopMode === 0) {
+            } else if (LocalStorage.loopMode === 0) {
                 const { track, index } = PlaylistManager.getNextTrack()
 
                 if (index === 0) {

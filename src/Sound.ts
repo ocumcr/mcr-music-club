@@ -57,6 +57,11 @@ export class Sound {
     }
 
     static setVolume(volume: number) {
+        if (volume < 0 || 1 < volume) {
+            console.error("volume must range from 0 to 1.")
+            return
+        }
+
         this.#gain.gain.value = volume
     }
 

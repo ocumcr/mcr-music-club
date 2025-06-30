@@ -1,5 +1,4 @@
 import { PlaylistManager } from "../PlaylistManager.js"
-import { handleQueryChange } from "../playMusic.js"
 
 import { URLManager } from "../URLManager.js"
 import { EventHandlers } from "./EventHandlers.js"
@@ -15,7 +14,8 @@ export class ContentEvents {
 
     static setupTrackClickEvents(playlist: readonly Track[]) {
         document.querySelectorAll(".track").forEach((track, i) => {
-            track.querySelector(".img-box")!.addEventListener("click", () => {
+            // アイコン
+            track.querySelector<HTMLDivElement>(".img-box")!.onclick = () => {
                 if (PlaylistManager.currentTrackIndex === i) {
                     // 現在のトラックがクリックされた場合は再生/一時停止を切り替える
                     EventHandlers.togglePlayback()
@@ -23,18 +23,19 @@ export class ContentEvents {
                     // 別のトラックがクリックされた場合はそのトラックを再生する
                     EventHandlers.changeTrack(playlist[i], i)
                 }
-            })
+            }
 
-            track.querySelectorAll(".tag-button").forEach((button, j) => {
-                button.addEventListener("click", () => {
-                    this.#onClickTag(playlist[i].tags[j])
-                })
+            // 作者
+            track.querySelector<HTMLParagraphElement>(".author")!.onclick = () => {
+                URLManager.search(playlist[i].author)
+            }
+
+            // タグ
+            track.querySelectorAll<HTMLButtonElement>(".tag-button").forEach((button, j) => {
+                button.onclick = () => {
+                    URLManager.search(playlist[i].tags[j])
+                }
             })
         })
-    }
-
-    static #onClickTag(tag: string) {
-        URLManager.setSearchQuery(tag)
-        handleQueryChange()
     }
 }

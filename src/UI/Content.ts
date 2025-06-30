@@ -1,5 +1,5 @@
 import { ContentEvents } from "../EventHandlers/ContentEvents.js"
-import { AppState } from "../AppState.js"
+import { Record } from "../Record.js"
 
 export class Content {
     static debugLog: HTMLElement
@@ -45,7 +45,7 @@ export class Content {
 
         ContentEvents.setupTrackClickEvents(playlist)
 
-        if (AppState.playCountRecord) this.setPlayCount(playlist, AppState.playCountRecord)
+        if (Record.playCountRecord) this.setPlayCount(playlist, Record.playCountRecord)
     }
 
     static #createTrackElement(track: Track) {
@@ -63,7 +63,7 @@ export class Content {
                 <div class="description">
                     <h3>${track.title}</h3>
                     <p>${track.year}</p>
-                    <p onclick="onClickTag('${track.author}')" class="author">${track.author}</p>
+                    <p class="author">${track.author}</p>
                     <p>${track.description}</p>
                     <div class="tags">
                         ${tags}
