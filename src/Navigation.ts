@@ -4,6 +4,8 @@ import { Content } from "./UI/Content.js"
 
 export class Navigation {
     static setPositionState(audio: HTMLAudioElement) {
+        if (!("mediaSession" in navigator)) return
+
         navigator.mediaSession.setPositionState({
             duration: audio.duration,
             playbackRate: audio.playbackRate,
@@ -23,8 +25,6 @@ export class Navigation {
 
     static init() {
         if (!("mediaSession" in navigator)) return
-
-        navigator.mediaSession.setPositionState({})
 
         // 再生コントロール対応
         navigator.mediaSession.setActionHandler("play", (e) => {

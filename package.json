@@ -1,8 +1,15 @@
 {
-    "dependencies": {
-        "vite": "^5.4.19"
-    },
-    "scripts": {
-        "build": "vite build --watch"
-    }
+  "dependencies": {
+    "esbuild": "^0.25.5",
+    "glob": "^11.0.3",
+    "vite": "^7.0.0"
+  },
+  "scripts": {
+    "build": "vite build --watch"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.53.2",
+    "@types/node": "^24.0.8",
+    "@vitejs/plugin-legacy": "^7.0.0"
+  }
 }
