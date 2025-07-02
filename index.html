@@ -23,7 +23,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@150&display=swap" rel="stylesheet" />
     </head>
     <body>
-        <header class="header">
+        <header>
             <a href="" id="title">
                 <h1>MCR音楽部</h1>
             </a>
@@ -33,7 +33,7 @@
                 <input type="submit" value="けんさくっ☆" />
             </form>
 
-            <div class="nav">
+            <nav class="nav">
                 <a href="about" target="_blank" title="about">
                     <i class="fa-solid fa-address-card"></i>
                     About
@@ -46,11 +46,11 @@
                     <i class="fa-brands fa-twitter"></i>
                     X
                 </a>
-            </div>
 
-            <a href="https://x.com/ocu_mcr" target="_blank" class="hidden-twitter" title="X">
-                <i class="fa-brands fa-twitter"></i>
-            </a>
+                <a href="https://x.com/ocu_mcr" target="_blank" class="hidden-twitter" title="X">
+                    <i class="fa-brands fa-twitter"></i>
+                </a>
+            </nav>
         </header>
 
         <div class="content">
@@ -60,7 +60,7 @@
             <ol class="musics"></ol>
         </div>
 
-        <footer class="footer">
+        <footer>
             <div class="music-thumbnail">
                 <span id="mini-thumbnail"></span>
                 <div id="music-title" title="視界に入れる"></div>
@@ -73,29 +73,35 @@
                 <input id="volume" type="range" value="50" min="0" max="100" />
             </div>
 
-            <div class="player-controls">
-                <div class="seek">
-                    <button id="back-button" title="曲の先頭">
-                        <i class="fa-solid fa-backward-step"></i>
-                    </button>
-                    <button id="play-button">
-                        <i class="fa-solid fa-play"></i>
-                    </button>
-                    <button id="forward-button" title="次の曲">
-                        <i class="fa-solid fa-forward-step"></i>
-                    </button>
-                    <input id="seekBar" type="range" value="0" min="0" max="100" step="1" />
+            <div id="player-controls">
+                <button id="back-button" title="曲の先頭">
+                    <i class="fa-solid fa-backward-step"></i>
+                </button>
 
-                    <div class="time-count"><span id="currentTime">00:00</span>/<span id="duration">00:00</span></div>
+                <button id="play-button">
+                    <i class="fa-solid fa-play"></i>
+                    <i class="fa-solid fa-pause"></i>
+                </button>
 
-                    <button id="loop-button">
-                        <i class="fa-solid fa-repeat loop-none"></i>
-                    </button>
+                <button id="forward-button" title="次の曲">
+                    <i class="fa-solid fa-forward-step"></i>
+                </button>
 
-                    <button id="shuffle-button" title="シャッフル">
-                        <i class="fa-solid fa-shuffle"></i>
-                    </button>
+                <input id="seekBar" type="range" value="0" min="0" max="100" step="1" />
+
+                <div id="time-count">
+                    <span id="currentTime">00:00</span>
+                    /
+                    <span id="duration">00:00</span>
                 </div>
+
+                <button id="loop-button">
+                    <i class="fa-solid fa-repeat"></i>
+                </button>
+
+                <button id="shuffle-button" title="シャッフル">
+                    <i class="fa-solid fa-shuffle"></i>
+                </button>
             </div>
         </footer>
     </body>

@@ -16,8 +16,7 @@ import { Header } from "./UI/Header.js"
 
 // アプリケーションの初期化
 async function initializeApp() {
-    // Footer.init(LocalStorage.loopMode, LocalStorage.shuffleMode, LocalStorage.volume)
-    Footer.init(0, 0, 0)
+    Footer.init(LocalStorage.loopMode, LocalStorage.shuffleMode, LocalStorage.volume)
     Header.init()
     Content.init()
     EventHandlers.init()
@@ -43,8 +42,16 @@ async function initializeApp() {
     Content.setPlayCount(PlaylistManager.playlist, Record.playCountRecord)
 }
 
+function tryInitialize() {
+    try {
+        initializeApp()
+    } catch (error) {
+        alert(error)
+    }
+}
+
 if (document.readyState === "complete") {
-    initializeApp()
+    tryInitialize()
 } else {
-    document.addEventListener("DOMContentLoaded", initializeApp)
+    document.addEventListener("DOMContentLoaded", tryInitialize)
 }

@@ -1,4 +1,4 @@
-.footer {
+footer {
     display: inline-flex;
     position: fixed;
 
@@ -41,31 +41,62 @@
     }
 }
 
-.player-controls {
+#player-controls {
     width: 100%;
     max-width: 100%;
 
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 
     justify-content: space-between;
 
-    & .seek {
-        height: 100%;
+    gap: 8px;
+
+    & #seekBar {
         width: 100%;
-        min-width: 200px;
+        max-width: 100%;
+    }
 
-        display: inline-flex;
-        align-items: center;
-        justify-content: right;
-
-        gap: 8px;
-
-        & #seekBar {
-            width: 100%;
-            max-width: 100%;
+    & #play-button {
+        & .fa-pause {
+            display: none;
         }
+
+        &.button-playing {
+            & .fa-pause {
+                display: block;
+            }
+
+            & .fa-play {
+                display: none;
+            }
+        }
+    }
+
+    & #loop-button {
+        & i {
+            position: relative;
+        }
+
+        &[data-loop="loop-none"] i {
+            opacity: 0.5;
+        }
+
+        &[data-loop="loop-one"] i::after {
+            content: "";
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 8px;
+            height: 8px;
+            background-color: #007bff;
+            border-radius: 50%;
+        }
+    }
+
+    & #shuffle-button.shuffle-off i {
+        opacity: 0.5;
     }
 
     & button {
@@ -148,27 +179,4 @@ input[type="range"] {
         width: 100%;
         min-width: 80px;
     }
-}
-
-.loop-none {
-    opacity: 0.5;
-}
-
-.loop-one {
-    position: relative;
-}
-
-.loop-one::after {
-    content: "";
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    width: 8px;
-    height: 8px;
-    background-color: #007bff;
-    border-radius: 50%;
-}
-
-.shuffle-off {
-    opacity: 0.5;
 }

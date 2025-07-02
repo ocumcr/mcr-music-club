@@ -1,26 +1,18 @@
 @media (max-width: 1200px) {
-    .hidden-twitter {
-        display: flex;
-        height: 100%;
-        aspect-ratio: 1;
-
-        font-size: 32px;
-
-        justify-content: center;
-        align-items: center;
-    }
-
     .volume-control {
         display: none;
     }
 
     .nav {
-        display: none;
-    }
+        & a:not(.hidden-twitter) {
+            display: none;
+        }
 
-    .search {
-        width: 100%;
-        margin: 0;
+        & a.hidden-twitter {
+            display: flex;
+            height: 100%;
+            aspect-ratio: 1;
+        }
     }
 
     .search-box {
@@ -29,6 +21,15 @@
 }
 
 @media (max-width: 768px) {
+    header {
+        padding: 8px 12px;
+        gap: 12px;
+
+        & .search .search-box {
+            font-size: 12px;
+        }
+    }
+
     .content .track .img-box {
         width: 96px;
     }
@@ -52,11 +53,11 @@
         font-size: 16px;
     }
 
-    .footer {
+    footer {
         justify-content: left;
     }
 
-    .time-count {
+    #time-count {
         display: none;
     }
 
@@ -70,13 +71,8 @@
         display: none;
     }
 
-    #title {
-        width: fit-content;
-    }
-
     #title h1 {
-        font-size: 24px;
-        padding-bottom: 4px;
+        font-size: 32px;
     }
 
     .volume-control {

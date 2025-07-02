@@ -41,22 +41,17 @@ export class Footer {
         const loopStates = ["loop-none", "", "loop-one"]
         const loopTitles = ["ループしない", "ループする", "一曲ループ"]
 
-        this.elements.loopButton.innerHTML = `
-            <i class="fa-solid fa-repeat ${loopStates[loopMode]}"></i>
-        `
+        this.elements.loopButton.dataset["loop"] = loopStates[loopMode]
+
         this.elements.loopButton.title = loopTitles[loopMode]
     }
 
     static updateShuffleButtonUI(shuffleMode: ShuffleMode) {
-        this.elements.shuffleButton.innerHTML = `
-            <i class="fa-solid fa-shuffle ${["shuffle-off", ""][shuffleMode]}"></i>
-        `
+        this.elements.shuffleButton.classList.toggle("shuffle-off", shuffleMode === 0)
     }
 
     static updatePlayButtonUI(isPlaying: boolean) {
-        this.elements.playButton.innerHTML = `
-            <i class="fa-solid fa-${isPlaying ? "pause" : "play"}"></i>
-        `
+        this.elements.playButton.classList.toggle("button-playing", isPlaying)
     }
 
     static updateTrackInfo(track: Track) {
