@@ -60,11 +60,8 @@ export class Footer {
         this.elements.miniThumbnail.style.backgroundSize = "cover"
     }
 
-    static updateDurationText(time: number) {
-        this.elements.durationText.innerText = this.#formatTime(time)
-    }
-
-    static updateSeekBarMax(max: number) {
+    static updateSeekBarMaxAndDurationText(max: number) {
+        this.elements.durationText.innerText = this.#formatTime(max)
         this.elements.seekBar.max = String(max)
     }
 

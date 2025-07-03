@@ -1,4 +1,4 @@
-import { URLManager } from "./URLManager.js"
+import { URLManager } from "../Controller/URLManager.js"
 
 let playCounted = false
 

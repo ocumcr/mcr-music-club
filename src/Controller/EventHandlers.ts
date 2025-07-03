@@ -1,12 +1,12 @@
-import { Sound } from "../Sound.js"
-import { PlaylistManager } from "../PlaylistManager.js"
-import { Navigation } from "../Navigation.js"
+import { Sound } from "../Model/Sound.js"
+import { PlaylistManager } from "../Model/PlaylistManager.js"
+import { Navigation } from "./Navigation.js"
 
-import { Footer } from "../UI/Footer.js"
-import { Content } from "../UI/Content.js"
-import { LocalStorage } from "../LocalStorage.js"
+import { Footer } from "../View/Footer.js"
+import { Content } from "../View/Content.js"
+import { LocalStorage } from "../Model/LocalStorage.js"
 import { FooterEvents } from "./FooterEvents.js"
-import { Survey } from "../Survey.js"
+import { Survey } from "../Model/Survey.js"
 
 // イベントハンドラの設定
 export class EventHandlers {
@@ -53,20 +53,20 @@ export class EventHandlers {
     }
 
     static async changeTrack(track: Track, index: number) {
-        await Sound.load(track.path, LocalStorage.loopMode === 2)
+        Content.updatePlayingClass(index)
+
+        await Sound.load(track.path)
         Sound.setVolume(LocalStorage.volume / 100)
+        Sound.setLoop(LocalStorage.loopMode === 2)
         Sound.play()
 
         FooterEvents.setupSeekBarUpdate(Sound.audio!)
         this.#setupTrackEnded(Sound.audio!)
 
-        const duration = Sound.getDuration()
-
         Footer.updateTrackInfo(track)
         Footer.updatePlayButtonUI(true)
-        Footer.updateSeekBarMax(duration)
-        Footer.updateDurationText(duration)
-        Content.updatePlayingClass(index)
+        Footer.updateSeekBarMaxAndDurationText(Sound.getDuration())
+        Content.setClassPlaying(index)
 
         Navigation.setNavigationMenu(track)
 

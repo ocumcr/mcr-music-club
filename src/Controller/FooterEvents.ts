@@ -1,13 +1,15 @@
-import { LocalStorage } from "../LocalStorage.js"
-import { Navigation } from "../Navigation.js"
-import { PlaylistManager } from "../PlaylistManager.js"
-import { Sound } from "../Sound.js"
+import { LocalStorage } from "../Model/LocalStorage.js"
+import { Navigation } from "./Navigation.js"
+import { PlaylistManager } from "../Model/PlaylistManager.js"
+import { Sound } from "../Model/Sound.js"
 
-import { Content } from "../UI/Content.js"
-import { Footer } from "../UI/Footer.js"
+import { Content } from "../View/Content.js"
+import { Footer } from "../View/Footer.js"
 
 import { EventHandlers } from "./EventHandlers.js"
-import { Survey } from "../Survey.js"
+import { Survey } from "../Model/Survey.js"
+import { ContentEvents } from "./ContentEvents.js"
+import { Record } from "../Model/Record.js"
 
 export class FooterEvents {
     static #initialized = false
@@ -96,6 +98,12 @@ export class FooterEvents {
             Content.renderPlaylist(PlaylistManager.playlist)
             Content.updatePlayingClass(PlaylistManager.currentTrackIndex)
             Content.scrollTo(PlaylistManager.currentTrackIndex)
+
+            if (Record.playCountRecord) {
+                Content.setPlayCount(PlaylistManager.playlist, Record.playCountRecord)
+            }
+
+            ContentEvents.setupTrackClickEvents(PlaylistManager.playlist)
         }
     }
 }

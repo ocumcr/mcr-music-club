@@ -1,5 +1,5 @@
-import { Header } from "../UI/Header.js"
-import { URLManager } from "../URLManager.js"
+import { Header } from "../View/Header.js"
+import { URLManager } from "./URLManager.js"
 
 export class HeaderEvents {
     static #initialized = false

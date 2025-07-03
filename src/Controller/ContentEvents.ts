@@ -1,6 +1,6 @@
-import { PlaylistManager } from "../PlaylistManager.js"
+import { PlaylistManager } from "../Model/PlaylistManager.js"
 
-import { URLManager } from "../URLManager.js"
+import { URLManager } from "./URLManager.js"
 import { EventHandlers } from "./EventHandlers.js"
 
 export class ContentEvents {

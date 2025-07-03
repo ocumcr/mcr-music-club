@@ -7,7 +7,7 @@ export class Sound {
     static #context: AudioContext
     static #gain: GainNode
 
-    static load(src: string, loop: boolean) {
+    static load(src: string) {
         if (!this.#context) {
             this.#context = new AudioContext()
             this.#gain = this.#context.createGain()
@@ -20,7 +20,6 @@ export class Sound {
         }
 
         this.audio = new Audio(src)
-        this.audio.loop = loop
         this.#source = this.#context.createMediaElementSource(this.audio)
         this.#source.connect(this.#gain)
 

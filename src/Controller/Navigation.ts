@@ -1,6 +1,6 @@
-import { EventHandlers } from "./EventHandlers/EventHandlers.js"
-import { Sound } from "./Sound.js"
-import { Content } from "./UI/Content.js"
+import { EventHandlers } from "./EventHandlers.js"
+import { Sound } from "../Model/Sound.js"
+import { Content } from "../View/Content.js"
 
 export class Navigation {
     static setPositionState(audio: HTMLAudioElement) {

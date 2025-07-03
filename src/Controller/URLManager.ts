@@ -1,9 +1,10 @@
-import { Record } from "./Record.js"
-import { LocalStorage } from "./LocalStorage.js"
-import { PlaylistManager } from "./PlaylistManager.js"
-import { Content } from "./UI/Content.js"
-import { Header } from "./UI/Header.js"
-import { Sound } from "./Sound.js"
+import { Record } from "../Model/Record.js"
+import { LocalStorage } from "../Model/LocalStorage.js"
+import { PlaylistManager } from "../Model/PlaylistManager.js"
+import { Content } from "../View/Content.js"
+import { Header } from "../View/Header.js"
+import { Sound } from "../Model/Sound.js"
+import { ContentEvents } from "./ContentEvents.js"
 
 export class URLManager {
     static isDebugMode(): boolean {
@@ -43,6 +44,12 @@ export class URLManager {
         PlaylistManager.setPlaylist(data, LocalStorage.shuffleMode === 1)
         PlaylistManager.currentTrackIndex = PlaylistManager.playlist.findIndex((track) => track.title === title)
         Content.renderPlaylist(PlaylistManager.playlist)
+
+        if (Record.playCountRecord) {
+            Content.setPlayCount(PlaylistManager.playlist, Record.playCountRecord)
+        }
+
+        ContentEvents.setupTrackClickEvents(PlaylistManager.playlist)
 
         if (Sound.isPlaying()) {
             Content.updatePlayingClass(PlaylistManager.currentTrackIndex)

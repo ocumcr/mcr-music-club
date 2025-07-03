@@ -1,18 +1,18 @@
-import { EventHandlers } from "./EventHandlers/EventHandlers.js"
-import { ContentEvents } from "./EventHandlers/ContentEvents.js"
-import { HeaderEvents } from "./EventHandlers/HeaderEvents.js"
-import { FooterEvents } from "./EventHandlers/FooterEvents.js"
+import { EventHandlers } from "./Controller/EventHandlers.js"
+import { ContentEvents } from "./Controller/ContentEvents.js"
+import { HeaderEvents } from "./Controller/HeaderEvents.js"
+import { FooterEvents } from "./Controller/FooterEvents.js"
 
-import { Record } from "./Record.js"
-import { Survey } from "./Survey.js"
-import { PlaylistManager } from "./PlaylistManager.js"
-import { Navigation } from "./Navigation.js"
-import { LocalStorage } from "./LocalStorage.js"
-import { URLManager } from "./URLManager.js"
+import { Record } from "./Model/Record.js"
+import { Survey } from "./Model/Survey.js"
+import { PlaylistManager } from "./Model/PlaylistManager.js"
+import { Navigation } from "./Controller/Navigation.js"
+import { LocalStorage } from "./Model/LocalStorage.js"
+import { URLManager } from "./Controller/URLManager.js"
 
-import { Content } from "./UI/Content.js"
-import { Footer } from "./UI/Footer.js"
-import { Header } from "./UI/Header.js"
+import { Content } from "./View/Content.js"
+import { Footer } from "./View/Footer.js"
+import { Header } from "./View/Header.js"
 
 // アプリケーションの初期化
 async function initializeApp() {
@@ -39,7 +39,7 @@ async function initializeApp() {
 
     Record.playCountRecord = Object.freeze(await Survey.fetchPlayCountData())
 
-    Content.setPlayCount(PlaylistManager.playlist, Record.playCountRecord)
+    Content.setPlayCount(PlaylistManager.playlist, Record.playCountRecord!)
 }
 
 function tryInitialize() {

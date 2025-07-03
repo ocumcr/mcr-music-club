@@ -1,6 +1,3 @@
-import { ContentEvents } from "../EventHandlers/ContentEvents.js"
-import { Record } from "../Record.js"
-
 export class Content {
     static debugLog: HTMLElement
     static content: HTMLElement
@@ -42,23 +39,20 @@ export class Content {
 
     static renderPlaylist(playlist: readonly Track[]) {
         this.#musics.innerHTML = playlist.map(this.#createTrackElement).join("")
-
-        ContentEvents.setupTrackClickEvents(playlist)
-
-        if (Record.playCountRecord) this.setPlayCount(playlist, Record.playCountRecord)
     }
 
     static #createTrackElement(track: Track) {
         const tags = track.tags.map((tag) => `<button class="tag-button">#${tag}</button>`).join("")
 
         return `
-            <li class="track">
+            <li class="track" data-state="pause">
                 <div class="img-box" style="
                     background: url(${track.thumbnail});
                     background-size: cover;
                 ">
                     <i class="fa-solid fa-circle-play"></i>
                     <i class="fa-solid fa-circle-pause"></i>
+                    <i class="fa-solid fa-spinner"></i>
                 </div>
                 <div class="description">
                     <h3>${track.title}</h3>
@@ -83,6 +77,12 @@ export class Content {
     }
 
     static updatePlayingClass(index: number) {
-        this.#musics.querySelectorAll(".track").forEach((track, i) => track.classList.toggle("playing", i === index))
+        this.#musics.querySelectorAll<HTMLElement>(".track").forEach((track, i) => {
+            track.dataset["state"] = i === index ? "loading" : "pause"
+        })
+    }
+
+    static setClassPlaying(index: number) {
+        this.#musics.querySelectorAll<HTMLElement>(".track")[index].dataset["state"] = "playing"
     }
 }
