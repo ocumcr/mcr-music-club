@@ -78,11 +78,15 @@ export class Content {
 
     static updatePlayingClass(index: number) {
         this.#musics.querySelectorAll<HTMLElement>(".track").forEach((track, i) => {
-            track.dataset["state"] = i === index ? "loading" : "pause"
+            track.dataset["state"] = i === index ? "playing" : "pause"
         })
     }
 
-    static setClassPlaying(index: number) {
-        this.#musics.querySelectorAll<HTMLElement>(".track")[index].dataset["state"] = "playing"
+    static setLoading(index: number) {
+        const track = this.#musics.querySelectorAll<HTMLElement>(".track")[index]
+
+        if (track) {
+            track.dataset["state"] = "loading"
+        }
     }
 }

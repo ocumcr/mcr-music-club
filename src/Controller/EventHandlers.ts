@@ -54,6 +54,7 @@ export class EventHandlers {
 
     static async changeTrack(track: Track, index: number) {
         Content.updatePlayingClass(index)
+        Content.setLoading(index)
 
         await Sound.load(track.path)
         Sound.setVolume(LocalStorage.volume / 100)
@@ -66,7 +67,7 @@ export class EventHandlers {
         Footer.updateTrackInfo(track)
         Footer.updatePlayButtonUI(true)
         Footer.updateSeekBarMaxAndDurationText(Sound.getDuration())
-        Content.setClassPlaying(index)
+        Content.updatePlayingClass(index)
 
         Navigation.setNavigationMenu(track)
 

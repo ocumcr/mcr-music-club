@@ -53,11 +53,6 @@ footer {
 
     gap: 8px;
 
-    & #seekBar {
-        width: 100%;
-        max-width: 100%;
-    }
-
     & #play-button {
         & .fa-pause {
             display: none;
@@ -136,7 +131,8 @@ footer {
 }
 
 input[type="range"] {
-    width: 300px;
+    flex: 1;
+
     height: 5px;
     appearance: none;
     background: #555;
