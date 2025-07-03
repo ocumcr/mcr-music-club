@@ -1,12 +1,12 @@
 import { Sound } from "../Model/Sound.js"
-import { PlaylistManager } from "../Model/PlaylistManager.js"
-import { Navigation } from "./Navigation.js"
 
 import { Footer } from "../View/Footer.js"
 import { Content } from "../View/Content.js"
+import { Navigation } from "../View/Navigation.js"
+
 import { LocalStorage } from "../Model/LocalStorage.js"
-import { FooterEvents } from "./FooterEvents.js"
 import { Survey } from "../Model/Survey.js"
+import { PlaylistManager } from "../Model/PlaylistManager.js"
 
 // イベントハンドラの設定
 export class EventHandlers {
@@ -31,7 +31,7 @@ export class EventHandlers {
         } else {
             Sound.play()
             Footer.updatePlayButtonUI(true)
-            Content.updatePlayingClass(PlaylistManager.currentTrackIndex)
+            Content.updatePlayingClass(PlaylistManager.getCurrentTrackIndex())
         }
     }
 
@@ -41,39 +41,59 @@ export class EventHandlers {
             return
         }
 
-        const { track, index } = PlaylistManager.getPreviousTrack()
-        await this.changeTrack(track, index)
-        Content.scrollTo(PlaylistManager.currentTrackIndex)
+        const { track } = PlaylistManager.getPreviousTrack()
+        await this.changeTrack(track)
+        Content.scrollTo(PlaylistManager.getCurrentTrackIndex())
     }
 
     static async handleForward({ scroll = true } = {}) {
-        const { track, index } = PlaylistManager.getNextTrack()
-        await this.changeTrack(track, index)
-        scroll && Content.scrollTo(PlaylistManager.currentTrackIndex)
+        const { track } = PlaylistManager.getNextTrack()
+        await this.changeTrack(track)
+        scroll && Content.scrollTo(PlaylistManager.getCurrentTrackIndex())
     }
 
-    static async changeTrack(track: Track, index: number) {
+    static async changeTrack(track: Track) {
+        PlaylistManager.currentTrackTitle = track.title
+
+        const index = PlaylistManager.getCurrentTrackIndex()
+
+        // 選択したトラックをローディング状態にする
         Content.updatePlayingClass(index)
         Content.setLoading(index)
 
+        // 読み込んで再生
         await Sound.load(track.path)
         Sound.setVolume(LocalStorage.volume / 100)
         Sound.setLoop(LocalStorage.loopMode === 2)
         Sound.play()
 
-        FooterEvents.setupSeekBarUpdate(Sound.audio!)
-        this.#setupTrackEnded(Sound.audio!)
-
+        // 表示を更新
         Footer.updateTrackInfo(track)
         Footer.updatePlayButtonUI(true)
         Footer.updateSeekBarMaxAndDurationText(Sound.getDuration())
         Content.updatePlayingClass(index)
-
         Navigation.setNavigationMenu(track)
 
-        PlaylistManager.currentTrackIndex = index
+        //
+        this.#setupSeekBarUpdate(Sound.audio!)
+        this.#setupTrackEnded(Sound.audio!)
 
+        // 再生回数を更新
         Survey.safeSendPlayCount(track.title)
+    }
+
+    static #setupSeekBarUpdate(audio: HTMLAudioElement) {
+        // 再生中にシークバーを更新
+        audio.ontimeupdate = () => {
+            Footer.updateSeekBarAndCurrentTimeText(audio.currentTime)
+            Navigation.setPositionState(audio)
+
+            // ループ再生を検知
+            if (LocalStorage.loopMode == 2 && audio.duration - audio.currentTime < 0.65) {
+                const title = PlaylistManager.currentTrackTitle
+                title && Survey.safeSendPlayCount(title)
+            }
+        }
     }
 
     static #setupTrackEnded(audio: HTMLAudioElement) {
@@ -82,7 +102,7 @@ export class EventHandlers {
                 this.handleForward({ scroll: false })
                 //
             } else if (LocalStorage.loopMode === 0) {
-                const isLast = PlaylistManager.playlist.length - 1 === PlaylistManager.currentTrackIndex
+                const isLast = PlaylistManager.playlist.length - 1 === PlaylistManager.getCurrentTrackIndex()
 
                 if (isLast) {
                     // 止める
@@ -91,6 +111,7 @@ export class EventHandlers {
                     return
                 }
 
+                // 勝手に終わった時にスクロールするのは嫌でしょう？
                 this.handleForward({ scroll: false })
             }
         }

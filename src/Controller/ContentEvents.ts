@@ -12,16 +12,19 @@ export class ContentEvents {
         this.#initialized = true
     }
 
-    static setupTrackClickEvents(playlist: readonly Track[]) {
+    // playlistが変更されたら、描画とともにイベントも更新すべき
+    static setupTrackClickEvents() {
+        const playlist = PlaylistManager.playlist
+
         document.querySelectorAll(".track").forEach((track, i) => {
             // アイコン
             track.querySelector<HTMLDivElement>(".img-box")!.onclick = () => {
-                if (PlaylistManager.currentTrackIndex === i) {
+                if (PlaylistManager.getCurrentTrackIndex() === i) {
                     // 現在のトラックがクリックされた場合は再生/一時停止を切り替える
                     EventHandlers.togglePlayback()
                 } else {
                     // 別のトラックがクリックされた場合はそのトラックを再生する
-                    EventHandlers.changeTrack(playlist[i], i)
+                    EventHandlers.changeTrack(playlist[i])
                 }
             }
 

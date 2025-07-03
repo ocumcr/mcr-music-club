@@ -9,6 +9,10 @@ export class Content {
         this.#musics = document.getElementById("musics") as HTMLOListElement
     }
 
+    static displayDebugLog() {
+        this.debugLog.style.display = "block"
+    }
+
     static addLog(text: string) {
         console.log(text)
         // document.getElementById("debug-log").innerHTML += navigator.mediaSession.playbackState + "<br />"
@@ -37,8 +41,10 @@ export class Content {
         }
     }
 
-    static renderPlaylist(playlist: readonly Track[]) {
+    static renderPlaylist(playlist: readonly Track[], playCountRecord: PlayCountRecord | null) {
         this.#musics.innerHTML = playlist.map(this.#createTrackElement).join("")
+
+        playCountRecord && this.setPlayCount(playlist, playCountRecord)
     }
 
     static #createTrackElement(track: Track) {
@@ -72,7 +78,9 @@ export class Content {
         const list = document.querySelectorAll<HTMLElement>(".play-count")
 
         playlist.forEach((obj, i) => {
-            list[i].innerText = "再生回数: " + (playCountRecord[obj.title] ?? 0)
+            // まだ再生されたことがないならレコードに載ってない
+            const playCount = playCountRecord[obj.title] ?? 0
+            list[i].innerText = "再生回数: " + playCount
         })
     }
 

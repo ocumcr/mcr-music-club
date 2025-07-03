@@ -3,10 +3,14 @@ export class PlaylistManager {
     static playlist: Readonly<Track[]> = []
     static defaultOrderPlaylist: Readonly<Track[]> = []
 
-    static currentTrackIndex: number = -1
+    static currentTrackTitle: string = ""
+
+    static getCurrentTrackIndex(): number {
+        return this.playlist.findIndex((track) => track.title === this.currentTrackTitle)
+    }
 
     static isAvailable() {
-        return this.currentTrackIndex !== -1
+        return this.currentTrackTitle !== ""
     }
 
     static setPlaylist(playlist: readonly Track[], shuffle: boolean) {
@@ -15,47 +19,32 @@ export class PlaylistManager {
     }
 
     static setDefaultOrder() {
-        if (this.isAvailable()) {
-            const currentTrack = this.playlist[this.currentTrackIndex]
-
-            this.currentTrackIndex = this.defaultOrderPlaylist.indexOf(currentTrack)
-        }
-
         this.playlist = [...this.defaultOrderPlaylist]
     }
 
     static shufflePlaylist({ moveCurrentTrackToTop }: { moveCurrentTrackToTop: boolean }) {
         if (this.isAvailable()) {
-            const currentTrack = this.playlist[this.currentTrackIndex]
+            const currentTrack = this.playlist[this.getCurrentTrackIndex()]
 
             // 今再生しているトラックを一番目に持ってくる
             do {
                 this.playlist = this.#shuffleArray([...this.playlist])
             } while (moveCurrentTrackToTop && this.playlist[0] != currentTrack)
-
-            if (moveCurrentTrackToTop) {
-                this.currentTrackIndex = 0
-            }
         } else {
             this.playlist = this.#shuffleArray([...this.playlist])
         }
     }
 
-    static getCurrentTrackTitle(): string | null {
-        if (!this.isAvailable()) return null
-        return this.playlist[this.currentTrackIndex].title
-    }
-
     static getNextTrack() {
-        if (!this.isAvailable()) return { track: this.playlist[0], index: 0 }
-        const nextIndex = (this.currentTrackIndex + 1) % this.playlist.length
-        return { track: this.playlist[nextIndex], index: nextIndex }
+        if (!this.isAvailable()) return { track: this.playlist[0] }
+        const nextIndex = (this.getCurrentTrackIndex() + 1) % this.playlist.length
+        return { track: this.playlist[nextIndex] }
     }
 
     static getPreviousTrack() {
-        if (!this.isAvailable()) return { track: this.playlist[0], index: 0 }
-        const prevIndex = (this.currentTrackIndex - 1 + this.playlist.length) % this.playlist.length
-        return { track: this.playlist[prevIndex], index: prevIndex }
+        if (!this.isAvailable()) return { track: this.playlist[0] }
+        const prevIndex = (this.getCurrentTrackIndex() - 1 + this.playlist.length) % this.playlist.length
+        return { track: this.playlist[prevIndex] }
     }
 
     static #shuffleArray(array: any[]) {

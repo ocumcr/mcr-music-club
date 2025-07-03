@@ -2,13 +2,13 @@ import { EventHandlers } from "./Controller/EventHandlers.js"
 import { ContentEvents } from "./Controller/ContentEvents.js"
 import { HeaderEvents } from "./Controller/HeaderEvents.js"
 import { FooterEvents } from "./Controller/FooterEvents.js"
+import { NavigationEvents } from "./Controller/NavigationEvents.js"
+import { URLManager } from "./Controller/URLManager.js"
 
 import { Record } from "./Model/Record.js"
 import { Survey } from "./Model/Survey.js"
 import { PlaylistManager } from "./Model/PlaylistManager.js"
-import { Navigation } from "./Controller/Navigation.js"
 import { LocalStorage } from "./Model/LocalStorage.js"
-import { URLManager } from "./Controller/URLManager.js"
 
 import { Content } from "./View/Content.js"
 import { Footer } from "./View/Footer.js"
@@ -23,7 +23,7 @@ async function initializeApp() {
     HeaderEvents.init()
     FooterEvents.init()
     ContentEvents.init()
-    Navigation.init()
+    NavigationEvents.init()
 
     const response = await fetch("music-data.json")
     Record.data = Object.freeze(await response.json())
@@ -34,11 +34,11 @@ async function initializeApp() {
 
     if (URLManager.isDebugMode()) {
         console.log("開けゴマ!")
-        Content.debugLog.style.display = "block"
+        Content.displayDebugLog()
     }
 
+    // 読み込みに時間がかかるため後回し
     Record.playCountRecord = Object.freeze(await Survey.fetchPlayCountData())
-
     Content.setPlayCount(PlaylistManager.playlist, Record.playCountRecord!)
 }
 
