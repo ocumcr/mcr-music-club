@@ -15,7 +15,7 @@
         animation: fade-in 0.3s ease-out;
     }
 
-    & .musics {
+    & #musics {
         width: 100%;
 
         display: block;
@@ -48,18 +48,6 @@
             font-size: 88px;
             color: #808080;
             opacity: 0.5;
-
-            &:nth-child(1) {
-                display: flex;
-            }
-
-            &:nth-child(2) {
-                display: none;
-            }
-
-            &:hover {
-                transform: scale(1.05);
-            }
         }
 
         &[data-state="playing"] {
@@ -129,6 +117,14 @@
             display: inline-block;
 
             cursor: pointer;
+
+            border-radius: 16px;
+
+            transition: scale 0.1s;
+
+            &:hover {
+                scale: 0.95;
+            }
         }
 
         & .description {
