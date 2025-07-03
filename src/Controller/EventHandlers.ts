@@ -6,7 +6,7 @@ import { Navigation } from "../View/Navigation.js"
 
 import { LocalStorage } from "../Model/LocalStorage.js"
 import { Survey } from "../Model/Survey.js"
-import { PlaylistManager } from "../Model/PlaylistManager.js"
+import { PlaylistManager } from "./PlaylistManager.js"
 
 // イベントハンドラの設定
 export class EventHandlers {
@@ -31,7 +31,7 @@ export class EventHandlers {
         } else {
             Sound.play()
             Footer.updatePlayButtonUI(true)
-            Content.updatePlayingClass(PlaylistManager.getCurrentTrackIndex())
+            Content.updatePlayingClass(PlaylistManager.getPlayingTrackIndex())
         }
     }
 
@@ -43,19 +43,21 @@ export class EventHandlers {
 
         const { track } = PlaylistManager.getPreviousTrack()
         await this.changeTrack(track)
-        Content.scrollTo(PlaylistManager.getCurrentTrackIndex())
+        Content.scrollTo(PlaylistManager.getPlayingTrackIndex())
     }
 
     static async handleForward({ scroll = true } = {}) {
         const { track } = PlaylistManager.getNextTrack()
         await this.changeTrack(track)
-        scroll && Content.scrollTo(PlaylistManager.getCurrentTrackIndex())
+        scroll && Content.scrollTo(PlaylistManager.getPlayingTrackIndex())
     }
 
     static async changeTrack(track: Track) {
-        PlaylistManager.currentTrackTitle = track.title
+        PlaylistManager.playingTrackTitle = track.title
+        if (!PlaylistManager.hasPlayingTrack())
+            throw new Error("謎の方法でplaylistに存在しない曲を選択しようとしているにゃ！")
 
-        const index = PlaylistManager.getCurrentTrackIndex()
+        const index = PlaylistManager.getPlayingTrackIndex()
 
         // 選択したトラックをローディング状態にする
         Content.updatePlayingClass(index)
@@ -90,7 +92,7 @@ export class EventHandlers {
 
             // ループ再生を検知
             if (LocalStorage.loopMode == 2 && audio.duration - audio.currentTime < 0.65) {
-                const title = PlaylistManager.currentTrackTitle
+                const title = PlaylistManager.playingTrackTitle
                 title && Survey.safeSendPlayCount(title)
             }
         }
@@ -98,12 +100,20 @@ export class EventHandlers {
 
     static #setupTrackEnded(audio: HTMLAudioElement) {
         audio.onended = () => {
+            const isLast = PlaylistManager.getPlaylist().length - 1 === PlaylistManager.getPlayingTrackIndex()
+
             if (LocalStorage.loopMode === 1) {
+                if (isLast) {
+                    PlaylistManager.shufflePlaylist({ moveCurrentTrackToTop: false })
+                    this.changeTrack(PlaylistManager.getPlaylist()[0])
+                    Content.scrollTo(-1)
+                    return
+                }
+
                 this.handleForward({ scroll: false })
+
                 //
             } else if (LocalStorage.loopMode === 0) {
-                const isLast = PlaylistManager.playlist.length - 1 === PlaylistManager.getCurrentTrackIndex()
-
                 if (isLast) {
                     // 止める
                     Footer.updatePlayButtonUI(false)

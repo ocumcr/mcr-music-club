@@ -1,9 +1,8 @@
 import { Record } from "../Model/Record.js"
 import { LocalStorage } from "../Model/LocalStorage.js"
-import { PlaylistManager } from "../Model/PlaylistManager.js"
+import { PlaylistManager } from "./PlaylistManager.js"
 import { Content } from "../View/Content.js"
 import { Header } from "../View/Header.js"
-import { ContentEvents } from "./ContentEvents.js"
 
 export class URLManager {
     static isDebugMode(): boolean {
@@ -25,7 +24,7 @@ export class URLManager {
         console.log("クエリパラメータが変更されました")
 
         this.#setPlaylist()
-        this.#render()
+        Content.fadeIn()
     }
 
     static #setPlaylist() {
@@ -41,14 +40,6 @@ export class URLManager {
         Header.setSearchBox(search)
 
         PlaylistManager.setPlaylist(playlist, LocalStorage.shuffleMode === 1)
-    }
-
-    static #render() {
-        Content.fadeIn()
-        Content.renderPlaylist(PlaylistManager.playlist, Record.playCountRecord)
-        Content.updatePlayingClass(PlaylistManager.getCurrentTrackIndex())
-
-        ContentEvents.setupTrackClickEvents()
     }
 
     static #getSearchQuery(): string {

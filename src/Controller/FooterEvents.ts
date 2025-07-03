@@ -1,13 +1,11 @@
 import { LocalStorage } from "../Model/LocalStorage.js"
-import { PlaylistManager } from "../Model/PlaylistManager.js"
+import { PlaylistManager } from "./PlaylistManager.js"
 import { Sound } from "../Model/Sound.js"
 
 import { Content } from "../View/Content.js"
 import { Footer } from "../View/Footer.js"
 
 import { EventHandlers } from "./EventHandlers.js"
-import { ContentEvents } from "./ContentEvents.js"
-import { Record } from "../Model/Record.js"
 
 export class FooterEvents {
     static #initialized = false
@@ -27,7 +25,7 @@ export class FooterEvents {
 
     static #setupMiniThumbnail() {
         Footer.elements.musicTitle.addEventListener("click", () => {
-            Content.scrollTo(PlaylistManager.getCurrentTrackIndex())
+            Content.scrollTo(PlaylistManager.getPlayingTrackIndex())
         })
     }
 
@@ -73,11 +71,8 @@ export class FooterEvents {
             }
 
             Footer.updateShuffleButtonUI(LocalStorage.shuffleMode)
-            Content.renderPlaylist(PlaylistManager.playlist, Record.playCountRecord)
-            Content.updatePlayingClass(PlaylistManager.getCurrentTrackIndex())
-            Content.scrollTo(PlaylistManager.getCurrentTrackIndex())
 
-            ContentEvents.setupTrackClickEvents()
+            Content.scrollTo(PlaylistManager.getPlayingTrackIndex())
         }
     }
 }

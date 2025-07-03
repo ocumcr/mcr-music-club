@@ -7,7 +7,7 @@ import { URLManager } from "./Controller/URLManager.js"
 
 import { Record } from "./Model/Record.js"
 import { Survey } from "./Model/Survey.js"
-import { PlaylistManager } from "./Model/PlaylistManager.js"
+import { PlaylistManager } from "./Controller/PlaylistManager.js"
 import { LocalStorage } from "./Model/LocalStorage.js"
 
 import { Content } from "./View/Content.js"
@@ -27,19 +27,13 @@ async function initializeApp() {
 
     const response = await fetch("music-data.json")
     Record.data = Object.freeze(await response.json())
-    PlaylistManager.setPlaylist(Record.data, LocalStorage.shuffleMode === 1)
 
     // 初期ロード時のクエリ処理
     URLManager.handleQueryChange()
 
-    if (URLManager.isDebugMode()) {
-        console.log("開けゴマ!")
-        Content.displayDebugLog()
-    }
-
     // 読み込みに時間がかかるため後回し
     Record.playCountRecord = Object.freeze(await Survey.fetchPlayCountData())
-    Content.setPlayCount(PlaylistManager.playlist, Record.playCountRecord!)
+    Content.setPlayCount(PlaylistManager.getPlaylist(), Record.playCountRecord!)
 }
 
 function tryInitialize() {
