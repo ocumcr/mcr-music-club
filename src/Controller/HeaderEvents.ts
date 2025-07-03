@@ -14,12 +14,10 @@ export class HeaderEvents {
     }
 
     static #setupForm() {
-        const form = document.querySelector<HTMLFormElement>(".search")!
-
-        form.onsubmit = (e) => {
+        Header.searchForm.onsubmit = (e) => {
             e.preventDefault()
 
-            URLManager.search(Header.search.value)
+            URLManager.search(Header.searchBox.value)
         }
     }
 

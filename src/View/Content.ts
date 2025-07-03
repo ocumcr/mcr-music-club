@@ -6,7 +6,7 @@ export class Content {
     static init() {
         this.debugLog = document.getElementById("debug-log")!
         this.content = document.querySelector(".content")!
-        this.#musics = document.querySelector(".musics") as HTMLOListElement
+        this.#musics = document.getElementById("musics") as HTMLOListElement
     }
 
     static addLog(text: string) {
