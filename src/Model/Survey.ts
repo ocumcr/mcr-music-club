@@ -15,7 +15,7 @@ export class Survey {
         }
     }
 
-    static async fetchPlayCountData() {
+    static async fetchPlayCountRecord() {
         const response = await fetch(
             "https://script.google.com/macros/s/AKfycbw-M6WdDND050H_DboJKixnDERBEYu1X24O6JthlZkohDJMKfrELuQ5YHDpbZ8N3eOh/exec",
         ) // WebアプリURLを指定

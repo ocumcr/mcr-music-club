@@ -1,6 +1,7 @@
-import { Record } from "../Model/Record"
-import { Content } from "../View/Content"
-import { ContentEvents } from "./ContentEvents"
+import { Record } from "../Model/Record.js"
+import { Sound } from "../Model/Sound.js"
+import { Content } from "../View/Content.js"
+import { ContentEvents } from "./ContentEvents.js"
 
 // プレイリスト管理のクラス
 export class PlaylistManager {
@@ -74,7 +75,9 @@ export class PlaylistManager {
         Content.renderPlaylist(this.#playlist, Record.playCountRecord)
         ContentEvents.setupTrackClickEvents()
 
-        // 最悪やらなくていい
-        Content.updatePlayingClass(this.getPlayingTrackIndex())
+        if (Sound.isPlaying()) {
+            // 最悪やらなくていい
+            Content.updatePlayingClass(this.getPlayingTrackIndex())
+        }
     }
 }

@@ -32,7 +32,7 @@ async function initializeApp() {
     URLManager.handleQueryChange()
 
     // 読み込みに時間がかかるため後回し
-    Record.playCountRecord = Object.freeze(await Survey.fetchPlayCountData())
+    Record.playCountRecord = Object.freeze(await Survey.fetchPlayCountRecord())
     Content.setPlayCount(PlaylistManager.getPlaylist(), Record.playCountRecord!)
 }
 
