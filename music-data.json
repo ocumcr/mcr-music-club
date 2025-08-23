@@ -1,5 +1,51 @@
 [
     {
+        "title": "nontrapezodihedron",
+        "year": "2025/7",
+        "author": "うめぼし",
+        "description": "<a href=\"https://ipotazero.github.io/With-Yignwi/\" target=\"_blank\"> With-Yignwi </a>のタイトル画面",
+        "path": "musics/With-Yignwi/nontrapezodihedron.mp3",
+        "thumbnail": "thumbnails/maple.png",
+        "tags": ["With-Yignwi", "MINOR"]
+    },
+    {
+        "title": "一切れの諧謔",
+        "year": "2025/7",
+        "author": "うめぼし",
+        "description": "<a href=\"https://ipotazero.github.io/With-Yignwi/\" target=\"_blank\"> With-Yignwi </a>の物語パート",
+        "path": "musics/With-Yignwi/一切れの諧謔.mp3",
+        "thumbnail": "thumbnails/maple.png",
+        "tags": ["With-Yignwi", "MINOR", "三拍子"]
+    },
+    {
+        "title": "野晒しの地獄",
+        "year": "2025/7",
+        "author": "うめぼし",
+        "description": "<a href=\"https://ipotazero.github.io/With-Yignwi/\" target=\"_blank\"> With-Yignwi </a>のパズルパート",
+        "path": "musics/With-Yignwi/野晒しの地獄.mp3",
+        "thumbnail": "thumbnails/maple.png",
+        "tags": ["With-Yignwi", "MINOR", "三拍子"]
+    },
+    {
+        "title": "ちっぽけな煌めき",
+        "year": "2025/8",
+        "author": "うめぼし",
+        "description": "<a href=\"https://ipotazero.github.io/With-Yignwi/\" target=\"_blank\"> With-Yignwi </a>のクリア画面",
+        "path": "musics/With-Yignwi/ちっぽけな煌めき.mp3",
+        "thumbnail": "thumbnails/maple.png",
+        "tags": ["With-Yignwi", "MINOR"]
+    },
+    {
+        "title": "頽れた星",
+        "year": "2025/8",
+        "author": "うめぼし",
+        "description": "<a href=\"https://ipotazero.github.io/With-Yignwi/\" target=\"_blank\"> With-Yignwi </a>のオマケ画面",
+        "path": "musics/With-Yignwi/頽れた星.mp3",
+        "thumbnail": "thumbnails/maple.png",
+        "tags": ["With-Yignwi", "MINOR"]
+    },
+
+    {
         "title": "おかたづけ",
         "year": "2025/4",
         "author": "うめぼし",
@@ -51,7 +97,7 @@
         "description": "タイトルのBGM",
         "path": "musics/title.mp3",
         "thumbnail": "thumbnails/heart.png",
-        "tags": ["まいんどすいーぱー", "MAJOR"]
+        "tags": ["まいんどすいーぱー", "MAJOR", "三拍子"]
     },
     {
         "title": "まいんどすいーぱー-mine",
