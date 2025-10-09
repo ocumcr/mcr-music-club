@@ -33,7 +33,7 @@
         "description": "<a href=\"https://ipotazero.github.io/witch-of-the-monocular/\" target=\"_blank\"> ひとやしきの魔女 </a>のタイトル画面",
         "path": "musics/wotm/title.mp3",
         "thumbnail": "thumbnails/wotm.png",
-        "tags": ["wotm", "MINOR"]
+        "tags": ["wotm", "MINOR", "五拍子"]
     },
     {
         "title": "魔力の止水域",
@@ -60,7 +60,7 @@
         "description": "<a href=\"https://ipotazero.github.io/witch-of-the-monocular/\" target=\"_blank\"> ひとやしきの魔女 </a>の儀式時。",
         "path": "musics/wotm/gishiki.mp3",
         "thumbnail": "thumbnails/wotm.png",
-        "tags": ["wotm", "MINOR"]
+        "tags": ["wotm", "MINOR", "五拍子"]
     },
     {
         "title": "nontrapezodihedron",
