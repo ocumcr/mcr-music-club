@@ -1,5 +1,68 @@
 [
     {
+        "title": "彷徨う回顧録",
+        "year": "2025/10",
+        "author": "うめぼし",
+        "description": "<a href=\"https://kishunankoubai.github.io/MazeMemoirs/\" target=\"_blank\"> MazeMemoirs </a>のタイトル画面",
+        "path": "musics/maze/彷徨う回顧録.mp3",
+        "thumbnail": "thumbnails/maze.PNG",
+        "tags": ["MazeMemoirs", "MINOR"]
+    },
+    {
+        "title": "迷子はどこへ",
+        "year": "2025/10",
+        "author": "うめぼし",
+        "description": "<a href=\"https://kishunankoubai.github.io/MazeMemoirs/\" target=\"_blank\"> MazeMemoirs </a>のステージ内",
+        "path": "musics/maze/迷子はどこへ.mp3",
+        "thumbnail": "thumbnails/maze.PNG",
+        "tags": ["MazeMemoirs", "MINOR"]
+    },
+    {
+        "title": "日常への出口",
+        "year": "2025/10",
+        "author": "うめぼし",
+        "description": "<a href=\"https://kishunankoubai.github.io/MazeMemoirs/\" target=\"_blank\"> MazeMemoirs </a>のエンディング",
+        "path": "musics/maze/日常への出口.mp3",
+        "thumbnail": "thumbnails/maze.PNG",
+        "tags": ["MazeMemoirs", "MAJOR"]
+    },
+    {
+        "title": "ひとやしきの魔女-title",
+        "year": "2025/10",
+        "author": "extension",
+        "description": "<a href=\"https://ipotazero.github.io/witch-of-the-monocular/\" target=\"_blank\"> ひとやしきの魔女 </a>のタイトル画面",
+        "path": "musics/wotm/title.mp3",
+        "thumbnail": "thumbnails/wotm.png",
+        "tags": ["wotm", "MINOR"]
+    },
+    {
+        "title": "魔力の止水域",
+        "year": "2025/10",
+        "author": "うめぼし",
+        "description": "<a href=\"https://ipotazero.github.io/witch-of-the-monocular/\" target=\"_blank\"> ひとやしきの魔女 </a>の探索画面",
+        "path": "musics/wotm/魔力の止水域.m4a",
+        "thumbnail": "thumbnails/wotm.png",
+        "tags": ["wotm", "MINOR", "MAJOR"]
+    },
+    {
+        "title": "ひとやしきの魔女-puzzle",
+        "year": "2025/10",
+        "author": "extension",
+        "description": "<a href=\"https://ipotazero.github.io/witch-of-the-monocular/\" target=\"_blank\"> ひとやしきの魔女 </a>のパズル画面",
+        "path": "musics/wotm/puzzle.mp3",
+        "thumbnail": "thumbnails/wotm.png",
+        "tags": ["wotm", "MINOR"]
+    },
+    {
+        "title": "ひとやしきの魔女-gishiki",
+        "year": "2025/10",
+        "author": "extension",
+        "description": "<a href=\"https://ipotazero.github.io/witch-of-the-monocular/\" target=\"_blank\"> ひとやしきの魔女 </a>の儀式時。",
+        "path": "musics/wotm/gishiki.mp3",
+        "thumbnail": "thumbnails/wotm.png",
+        "tags": ["wotm", "MINOR"]
+    },
+    {
         "title": "nontrapezodihedron",
         "year": "2025/7",
         "author": "うめぼし",
