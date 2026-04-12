@@ -60,7 +60,7 @@
         "author": "うめぼし",
         "description": "<a href=\"https://kishunankoubai.github.io/WhyTheWorldWillNotEnd/\" target=\"_blank\">世界が終わらない理由。</a>のゲーム画面",
         "path": "musics/world/ただの誤謬.mp3",
-        "thumbnail": "",
+        "thumbnail": "thumbnails/WhyTheWorldWillNotEndIcon.png",
         "tags": ["世界が終わらない理由。"]
     },
     {
@@ -69,7 +69,7 @@
         "author": "うめぼし",
         "description": "<a href=\"https://kishunankoubai.github.io/WhyTheWorldWillNotEnd/\" target=\"_blank\">世界が終わらない理由。</a>のタイトル画面",
         "path": "musics/world/今日未明、隣町にて.mp3",
-        "thumbnail": "",
+        "thumbnail": "thumbnails/WhyTheWorldWillNotEndIcon.png",
         "tags": ["世界が終わらない理由。"]
     },
 
